@@ -1,4 +1,4 @@
-from pymongo import (IndexModel, ASCENDING, DESCENDING)
+from pymongo import (IndexModel, ASCENDING, DESCENDING, TEXT)
 
 INDEXES = {
     'hgnc_gene': [
@@ -59,6 +59,13 @@ INDEXES = {
         IndexModel([
             ('description', ASCENDING)],
             name="description"),
+        IndexModel([
+            ('description', TEXT)],
+            default_language='english',
+            name="description_text"),
+        IndexModel([
+            ('hpo_number', ASCENDING)],
+            name="number"),
     ],
     'transcript': [
         IndexModel([
@@ -73,10 +80,5 @@ INDEXES = {
             ('hgnc_id', ASCENDING)],
             name="build_hgncid"),
     ],
-    'hpo_term': [
-        IndexModel([
-            ('hpo_number', ASCENDING)],
-            name="number"),
-    ],
-    
 }
+
