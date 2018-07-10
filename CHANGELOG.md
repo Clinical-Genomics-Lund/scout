@@ -25,6 +25,7 @@ $scout update hpo
 
 ### Fixed
 - Global comments shown across cases and institutes. Case-specific variant comments are shown only for that specific case.
+- Fixed coordinates for SVs with start chromosome different from end chromosome
 - Links to clinvar submitted variants at the cases level
 - Adapts clinvar parsing to new format
 - Fixed problem in `scout update user` when the user object had no roles
@@ -34,6 +35,7 @@ $scout update hpo
 - Parses Polyphen in correct way again
 
 ### Added
+- Dismiss SVs
 - Added IGV alignments viewer
 - Read delivery report path from case config or CLI command
 - Filter for spidex scores
