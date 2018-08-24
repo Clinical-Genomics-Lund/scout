@@ -583,7 +583,11 @@
       <tbody>
         <tr>
           <td>chr{{variant.chromosome}}:{{variant.position}}-{{variant.end}}</td>
-          <td>{{variant.cytoband_start}}-{{variant.cytoband_end}}</td>
+          {% if variant.cytoband_start and variant.cytoband_end %}
+            <td>{{variant.cytoband_start}}-{{variant.cytoband_end}}</td>
+          {% else %}
+            <td>-</td>
+          {% endif %}
           <td>{{variant.reference}} → {{variant.alternative}}</td>
           <td>
             {% if variant.dbsnp_id %}
@@ -870,8 +874,20 @@
         <tr>
           <td><span class="badge badge-warning pull-left">{{variant.sub_category|upper}}</span></td>
           <td>{{ variant.length }}</td>
-          <td>chr{{variant.chromosome}}:{{variant.position}}-{{variant.end}}</td>
-          <td>{{variant.cytoband_start}}-{{variant.cytoband_end}}</td>
+          {% if variant.end_chrom %} <!-- end_chrom key is also in database-->
+            {% if variant.chromosome == variant.end_chrom %} <!--but it's still not a rearrangement involving different chromosomes-->
+              <td>chr{{variant.chromosome}}:{{variant.position}}-{{variant.end}}</td>
+            {% else %}
+              <td>chr{{variant.chromosome}}:{{variant.position}}-{{'chr'+variant.end_chrom}}:{{variant.end}}</td> <!--variant ends on another chromosome-->
+            {% endif %}
+          {% else %} <!--sometimes there are just "chrom", "position" and "end" keys for SVs-->
+            <td>chr{{variant.chromosome}}:{{variant.position}}-{{variant.end}}</td>
+          {% endif %}
+          {% if variant.cytoband_start and variant.cytoband_end %}
+            <td>{{variant.cytoband_start}}-{{variant.cytoband_end}}</td>
+          {% else %}
+            <td>-</td>
+          {% endif %}
           <td>
             {% for panel_id in variant.panels %}
               <a href="{{ url_for('panels.panel', panel_id=panel_id) }}" target="_blank">{{ panel_id }}</a><br>

@@ -85,6 +85,29 @@
 	          </form>
 	        </div>
 	      </li>
+
+        <li class="list-group-item">
+	        <div>
+	          <form action="{{ url_for('variants.variant_update', institute_id=institute._id, case_name=case.display_name, variant_id=variant._id) }}" method="POST">
+              <label>Dismiss variant</label>
+              <div class="row">
+		            <div class="col-xs-8">
+		              <select multiple name="dismiss_variant" class="form-control">
+		                <option>Select a tag</option>
+                    {% for rank, data in dismiss_variant_options.items() %}
+                      <option {% if rank~"" in variant.dismiss_variant %} selected {% endif %} value="{{ rank }}">
+                        {{ data.label }}
+                      </option>
+                    {% endfor %}
+		              </select>
+		            </div>
+		            <div class="col-xs-4">
+		              <button type="submit" class="btn btn-default form-control">Save</button>
+		            </div>
+              </div>
+	          </form>
+	        </div>
+	      </li>
       </ul>
     </div>
     <div class="col-md-6">
@@ -92,18 +115,63 @@
         <li class="list-group-item">
           Position
           <div class="pull-right">
-            {{ variant.chromosome }}:{{ variant.position }}-{{ variant.end }} - Alignments:
-            <a class="btn btn-default btn-sm" href="{{ url_for('pileup.viewer', bam=case.bam_files, bai=case.bai_files, sample=case.sample_names, contig=variant.chromosome, start=(variant.position - 50), stop=(variant.end + 50), vcf=case.vcf_files.vcf_sv) }}" target="_blank">Pileup</a>
-            <a class="btn btn-default btn-sm" href="{{ url_for('igv.viewer', bam=case.bam_files, bai=case.bai_files, sample=case.sample_names, build=case.genome_build, contig=variant.chromosome, start=(variant.position - 50), stop=(variant.end + 50)) }}" target="_blank">IGV (BETA)</a>
+            {{ variant.chromosome }}:{{ variant.position }}-{{ variant.end }}
+            {% if variant.chromosome == "MT" and case.mt_bams %}
+              - Alignment:
+              <a class="btn btn-default btn-sm" href="{{ url_for('alignviewers.pileup', bam=case.mt_bams, bai=case.mt_bais, vcf=case.region_vcf_file, sample=case.sample_names, contig=variant.chromosome, start=(variant.position - 50), stop=(variant.end + 50)) }}" target="_blank">Pileup viewer</a><br>
+              <a class="btn btn-default btn-sm" href="{{ url_for('alignviewers.igv', sample=case.sample_names, build=case.genome_build, bam=case.mt_bams, bai=case.mt_bais, contig=variant.chromosome, start=(variant.position - 50), stop=(variant.end + 50)) }}" target="_blank">IGV viewer (BETA)</a>
+            {% elif case.bam_files %}
+              - Alignment:
+              <a class="btn btn-default btn-sm" href="{{ url_for('alignviewers.pileup', bam=case.bam_files, bai=case.bai_files, sample=case.sample_names, contig=variant.chromosome, start=(variant.position - 50), stop=(variant.end + 50), vcf=case.vcf_files.vcf_sv) }}" target="_blank">Pileup</a>
+              <a class="btn btn-default btn-sm" href="{{ url_for('alignviewers.igv', bam=case.bam_files, bai=case.bai_files, sample=case.sample_names, build=case.genome_build, contig=variant.chromosome, start=(variant.position - 50), stop=(variant.end + 50)) }}" target="_blank">IGV (BETA)</a>
+            {% else %}
+              - BAM file(s) missing
+            {% endif %}
+          </div>
+        </li>
+        <li class="list-group-item">
+          Breakpoint 1
+          <div class="pull-right">
+            {{ variant.chromosome }}:{{ variant.position }}
+            {% if variant.chromosome == "MT" and case.mt_bams %}
+              - Alignment:
+              <a class="btn btn-default btn-sm" href="{{ url_for('alignviewers.pileup', bam=case.mt_bams, bai=case.mt_bais, vcf=case.region_vcf_file, sample=case.sample_names, contig=variant.chromosome, start=(variant.position - 500), stop=(variant.position + 500)) }}" target="_blank">Pileup viewer</a><br>
+              <a class="btn btn-default btn-sm" href="{{ url_for('alignviewers.igv', sample=case.sample_names, build=case.genome_build, bam=case.mt_bams, bai=case.mt_bais, contig=variant.chromosome, start=(variant.position - 500), stop=(variant.position + 500)) }}" target="_blank">IGV viewer (BETA)</a>
+            {% elif case.bam_files %}
+              - Alignment:
+              <a class="btn btn-default btn-sm" href="{{ url_for('alignviewers.pileup', bam=case.bam_files, bai=case.bai_files, sample=case.sample_names, contig=variant.chromosome, start=(variant.position - 500), stop=(variant.position + 500), vcf=case.vcf_files.vcf_sv) }}" target="_blank">Pileup</a>
+              <a class="btn btn-default btn-sm" href="{{ url_for('alignviewers.igv', bam=case.bam_files, bai=case.bai_files, sample=case.sample_names, build=case.genome_build, contig=variant.chromosome, start=(variant.position - 500), stop=(variant.position + 500)) }}" target="_blank">IGV (BETA)</a>
+            {% else %}
+              - BAM file(s) missing
+            {% endif %}
+          </div>
+        </li>
+        <li class="list-group-item">
+          Breakpoint 2
+          <div class="pull-right">
+            {{ variant.chromosome }}:{{ variant.end }}
+            {% if variant.chromosome == "MT" and case.mt_bams %}
+              - Alignment:
+              <a class="btn btn-default btn-sm" href="{{ url_for('alignviewers.pileup', bam=case.mt_bams, bai=case.mt_bais, vcf=case.region_vcf_file, sample=case.sample_names, contig=variant.chromosome, start=(variant.end - 500), stop=(variant.end + 500)) }}" target="_blank">Pileup viewer</a><br>
+              <a class="btn btn-default btn-sm" href="{{ url_for('alignviewers.igv', sample=case.sample_names, build=case.genome_build, bam=case.mt_bams, bai=case.mt_bais, contig=variant.chromosome, start=(variant.end - 500), stop=(variant.end + 500)) }}" target="_blank">IGV viewer (BETA)</a>
+            {% elif case.bam_files %}
+              - Alignment:
+              <a class="btn btn-default btn-sm" href="{{ url_for('alignviewers.pileup', bam=case.bam_files, bai=case.bai_files, sample=case.sample_names, contig=variant.chromosome, start=(variant.end - 500), stop=(variant.end + 500), vcf=case.vcf_files.vcf_sv) }}" target="_blank">Pileup</a>
+              <a class="btn btn-default btn-sm" href="{{ url_for('alignviewers.igv', bam=case.bam_files, bai=case.bai_files, sample=case.sample_names, build=case.genome_build, contig=variant.chromosome, start=(variant.end - 500), stop=(variant.end + 500)) }}" target="_blank">IGV (BETA)</a>
+            {% else %}
+              - BAM file(s) missing
+            {% endif %}
           </div>
         </li>
 	      <li class="list-group-item">
 	        Cytoband
           <div class="pull-right">
-            {% if variant.cytoband_start == variant.cytoband_end %}
-            {{ variant.chromosome }}{{ variant.cytoband_start }}
+            {% if variant.chromosome == variant.end_chrom and variant.cytoband_start == variant.cytoband_end %}
+              {{ variant.chromosome }}{{ variant.cytoband_start }}
+            {% elif variant.chromosome == variant.end_chrom %}
+              {{ variant.chromosome }}{{ variant.cytoband_start }}{{ variant.cytoband_end }}
             {% else %}
-            {{ variant.chromosome }}{{ variant.cytoband_start }}{{ variant.cytoband_end }}
+              {{ variant.chromosome }}{{ variant.cytoband_start }}-{{variant.end_chrom}}{{ variant.cytoband_end }}
             {% endif %}
           </div>
 	      </li>
@@ -367,3 +435,16 @@
     </table>
   </div>
 {% endmacro %}
+
+{% block scripts %}
+  {{ super() }}
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/js/bootstrap-multiselect.min.js"></script>
+  <script>
+    $(function () {
+      $('select[multiple]').multiselect({
+        buttonWidth: '100%'
+      });
+    })
+  </script>
+{% endblock %}

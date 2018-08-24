@@ -2,7 +2,8 @@
 
 {% block styles %}
   {{ super() }}
-  <link rel="stylesheet" type="text/css" href="{{ url_for('pileup.static', filename='pileup.css') }}">
+  <!-- PILEUP CSS -->
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/pileup/0.6.9/pileup.css">
 {% endblock %}
 
 {% block content %}
@@ -12,7 +13,8 @@
 {% block scripts %}
   {{ super() }}
 
-  <script type="text/javascript" src="{{ url_for('pileup.static', filename='pileup.min.js') }}"></script>
+  <!-- PILEUP JS-->
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pileup/0.6.9/pileup.min.js"></script>
 
   <script type="text/javascript" charset="utf-8">
       var div = document.getElementById('pileup-viewer');
@@ -24,9 +26,9 @@
             isReference: true,
             data: pileup.formats.twoBit({
               {% if genome %}
-                url: '{{ url_for("pileup.remote_static", file=genome) }}'
+                url: '{{ url_for("alignviewers.remote_static", file=genome) }}'
               {% else %}
-                url: 'http://www.biodalliance.org/datasets/hg19.2bit'
+                url: 'https://www.biodalliance.org/datasets/hg19.2bit'
               {% endif %}
             }),
             name: 'Reference'
@@ -43,9 +45,9 @@
             viz: pileup.viz.genes(),
             data: pileup.formats.bigBed({
               {% if exons %}
-                url: '{{ url_for("pileup.remote_static", file=exons) }}'
+                url: '{{ url_for("alignviewers.remote_static", file=exons) }}'
               {% else %}
-                url: 'http://www.biodalliance.org/datasets/ensGene.bb'
+                url: 'https://www.biodalliance.org/datasets/ensGene.bb'
               {% endif %}
             }),
             name: 'Genes'
@@ -54,7 +56,7 @@
             {
               viz: pileup.viz.variants(),
               data: pileup.formats.vcf({
-                url: '{{ url_for("pileup.remote_static", file=vcf_file) }}'
+                url: '{{ url_for("alignviewers.remote_static", file=vcf_file) }}'
               }),
               name: 'Variants'
             },
@@ -63,8 +65,8 @@
             {
               viz: pileup.viz.coverage(),
               data: pileup.formats.bam({
-                url: '{{ url_for("pileup.remote_static", file=alignment.bam) }}',
-                indexUrl: '{{ url_for("pileup.remote_static", file=alignment.bai) }}'
+                url: '{{ url_for("alignviewers.remote_static", file=alignment.bam) }}',
+                indexUrl: '{{ url_for("alignviewers.remote_static", file=alignment.bai) }}'
               }),
               name: 'Coverage'
             },
@@ -73,8 +75,8 @@
                   viewAsPairs: true
               }),
               data: pileup.formats.bam({
-                url: '{{ url_for("pileup.remote_static", file=alignment.bam) }}',
-                indexUrl: '{{ url_for("pileup.remote_static", file=alignment.bai) }}'
+                url: '{{ url_for("alignviewers.remote_static", file=alignment.bam) }}',
+                indexUrl: '{{ url_for("alignviewers.remote_static", file=alignment.bai) }}'
               }),
               cssClass: 'normal',
               name: '{{ alignment.sample }}'
