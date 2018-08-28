@@ -24,13 +24,14 @@ except ImportError:
     logger.info('chanjo report not installed!')
 
 from . import extensions
-from .blueprints import public, genes, cases, login, variants, panels, pileup, igv, dashboard, api
+from .blueprints import alignviewers, public, genes, cases, login, variants, panels, dashboard, api
 
 
 def create_app(config_file=None, config=None):
     """Flask app factory function."""
     app = Flask(__name__)
     app.config.from_pyfile('config.py')
+    app.jinja_env.add_extension('jinja2.ext.do')
     if config:
         app.config.update(config)
     if config_file:
@@ -92,10 +93,9 @@ def register_blueprints(app):
     app.register_blueprint(login.login_bp)
     app.register_blueprint(variants.variants_bp)
     app.register_blueprint(panels.panels_bp)
-    app.register_blueprint(pileup.pileup_bp)
     app.register_blueprint(dashboard.dashboard_bp)
     app.register_blueprint(api.api_bp)
-    app.register_blueprint(igv.igv_bp)
+    app.register_blueprint(alignviewers.alignviewers_bp)
 
 
 def register_filters(app):

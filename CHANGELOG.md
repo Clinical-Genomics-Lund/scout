@@ -25,6 +25,8 @@ $scout update hpo
 
 ### Fixed
 - Global comments shown across cases and institutes. Case-specific variant comments are shown only for that specific case.
+- Moved igv and pileup viewer under a common folder
+- Fixed MT alignment view pileup.js
 - Fixed coordinates for SVs with start chromosome different from end chromosome
 - Links to clinvar submitted variants at the cases level
 - Adapts clinvar parsing to new format
@@ -36,6 +38,7 @@ $scout update hpo
 - Fix problem with parsing gnomad from VEP
 
 ### Added
+- Added a "Filter and export" button to export custom-filtered SNVs to CSV file
 - Dismiss SVs
 - Added IGV alignments viewer
 - Read delivery report path from case config or CLI command
@@ -47,7 +50,7 @@ $scout update hpo
 - Adds choice in cases overview do show as many cases as user like
 
 ### Removed
-
+- pileup.min.js and pileup css are imported from a remote web location now
 - All source files for HPO information, this is instead fetched directly from source
 - All source files for gene information, this is instead fetched directly from source
 
