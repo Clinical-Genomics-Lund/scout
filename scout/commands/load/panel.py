@@ -54,8 +54,11 @@ def panel(context, path, date, display_name, version, panel_type, panel_id, inst
     """Add a gene panel to the database."""
 
     adapter = context.obj['adapter']
-    institute = institute or 'cust000'
 
+    if not path and not omim:
+        LOG.warning("Please provide a gene panel file or specify omim")
+        context.abort()
+    
     if omim:
         api_key = api_key or context.obj.get('omim_api_key')
         if not api_key:
