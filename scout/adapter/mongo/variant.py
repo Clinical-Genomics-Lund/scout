@@ -400,12 +400,11 @@ class VariantHandler(VariantLoader):
         institute_causatives = self.get_causatives(variant_obj['institute'])
         for causative_id in institute_causatives:
             other_variant = self.variant(causative_id)
-            if not other_variant:
-                continue
-            not_same_case = other_variant['case_id'] != case_obj['_id']
-            same_variant = other_variant['display_name'].startswith(variant_id)
-            if not_same_case and same_variant:
-                yield other_variant
+            if other_variant:
+                not_same_case = other_variant['case_id'] != case_obj['_id']
+                same_variant = other_variant['display_name'].startswith(variant_id)
+                if not_same_case and same_variant:
+                    yield other_variant
 
     def delete_variants(self, case_id, variant_type, category=None):
         """Delete variants of one type for a case

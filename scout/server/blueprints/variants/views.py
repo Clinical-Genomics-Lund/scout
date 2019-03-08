@@ -117,8 +117,6 @@ def variants(institute_id, case_name):
                     hgnc_symbols.append(hgnc_gene['hgnc_symbol'])
             elif store.hgnc_genes(hgnc_symbol).count() == 0:
                   not_found_symbols.append(hgnc_symbol)
-            elif is_clinical and (hgnc_symbol not in clinical_symbols):
-                 non_clinical_symbols.append(hgnc_symbol)
             else:
                 hgnc_symbols.append(hgnc_symbol)
 
