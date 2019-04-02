@@ -2,6 +2,7 @@
 import logging
 import os.path
 import urllib.parse
+import subprocess
 
 from pprint import pprint as pp
 
@@ -886,6 +887,33 @@ def variant_verification(store, mail, institute_obj, case_obj, user_obj, variant
             url_builder(flask.url_for): for testing purposes, otherwise test verification email fails because out of context
     """
 
+    ncbi_chr = {
+            '1': 'NC_000001',
+            '2': 'NC_000002',
+            '3': 'NC_000003',
+            '4': 'NC_000004',
+            '5': 'NC_000005',
+            '6': 'NC_000006',
+            '7': 'NC_000007',
+            '8': 'NC_000008',
+            '9': 'NC_000009',
+            '10':'NC_000010',
+            '11':'NC_000011',
+            '12':'NC_000012',
+            '13':'NC_000013',
+            '14':'NC_000014',
+            '15':'NC_000015',
+            '16':'NC_000016',
+            '17':'NC_000017',
+            '18':'NC_000018',
+            '19':'NC_000019',
+            '20':'NC_000020',
+            '21':'NC_000021',
+            '22':'NC_000022',
+            'X': 'NC_000023',
+            'Y': 'NC_000024'
+    }
+    
     recipients = institute_obj['sanger_recipients']
     if len(recipients) == 0:
         raise MissingSangerRecipientError()
@@ -898,6 +926,12 @@ def variant_verification(store, mail, institute_obj, case_obj, user_obj, variant
     end_chrom = variant_obj.get('end_chrom', chromosome)
     breakpoint_1 = ':'.join([chromosome, str(variant_obj['position'])])
     breakpoint_2 = ':'.join([end_chrom, str(variant_obj.get('end'))])
+
+    hg38 = subprocess.check_output( [ '/data/bnf/scripts/hg38_pos.pl', str(variant_obj['chromosome']), str(variant_obj['position']) ] ).decode('utf-8')
+    hg38_chr, hg38_pos = hg38.split(':')
+    ncbi_link = '<a href="https://www.ncbi.nlm.nih.gov/nuccore/'+ncbi_chr[hg38_chr]+'?report=fasta&from='+str(int(hg38_pos)-500)+'&to='+str(int(hg38_pos)+500)+'">NCBI genomic region</a>'
+    thermo_link = '<a href="https://www.thermofisher.com/order/genome-database/searchResults?searchMode=keyword&CID=&ICID=&productTypeSelect=ceprimer&targetTypeSelect=ceprimer_all&alternateTargetTypeSelect=&alternateProductTypeSelect=&originalCount=0&species=Homo+sapiens&otherSpecies=&additionalFilter=ceprimer-human-exome&keyword=&sequenceInput=&selectedInputType=&chromosome='+hg38_chr+'&chromStart='+hg38_pos+'&chromStop='+hg38_pos+'&vcfUpload=&multiChromoSome=&batchText=&batchUpload=&sequenceUpload=&multiSequence=&multiSequenceNames=&priorSearchTerms=%28NR%29">Order primers from ThermoFisher</a>'
+    
     variant_size = variant_obj.get('length')
     panels = ', '.join(variant_obj.get('panels', []))
     hgnc_symbol = ', '.join(variant_obj['hgnc_symbols'])
@@ -970,7 +1004,10 @@ def variant_verification(store, mail, institute_obj, case_obj, user_obj, variant
         gtcalls = ''.join(gtcalls),
         tx_changes = ''.join(tx_changes) or 'Not available',
         name = user_obj['name'].encode('utf-8'),
-        comment = comment
+        comment = comment,
+        hg38 = hg38,
+        ncbi=ncbi_link,
+        thermo=thermo_link
     )
 
     # build a local the link to the variant to be included in the events objects (variant and case) created in the event collection.
@@ -999,7 +1036,7 @@ def variant_verification(store, mail, institute_obj, case_obj, user_obj, variant
     mail.send(message)
 
 
-def verification_email_body(case_name, url, display_name, category, subcategory, breakpoint_1, breakpoint_2, hgnc_symbol, panels, gtcalls, tx_changes, name, comment):
+def verification_email_body(case_name, url, display_name, category, subcategory, breakpoint_1, breakpoint_2, hgnc_symbol, panels, gtcalls, tx_changes, name, comment, hg38, ncbi, thermo):
     """
         Builds the html code for the variant verification emails (order verification and cancel verification)
 
@@ -1030,12 +1067,16 @@ def verification_email_body(case_name, url, display_name, category, subcategory,
          <li><strong>Variant type</strong>: {category} ({subcategory})
          <li><strong>Breakpoint 1</strong>: {breakpoint_1}</li>
          <li><strong>Breakpoint 2</strong>: {breakpoint_2}</li>
+         <li><strong>hg38</strong>: {hg38}</li>
+
          <li><strong>HGNC symbols</strong>: {hgnc_symbol}</li>
          <li><strong>Gene panels</strong>: {panels}</li>
          <li><strong>GT call</strong></li>
          {gtcalls}
          <li><strong>Amino acid changes</strong></li>
          {tx_changes}
+         <li>{ncbi}</li>
+         <li>{thermo}</li>
          <li><strong>Comment</strong>: {comment}</li>
          <li><strong>Ordered by</strong>: {name}</li>
        </ul>
@@ -1052,7 +1093,11 @@ def verification_email_body(case_name, url, display_name, category, subcategory,
         gtcalls=gtcalls,
         tx_changes=tx_changes,
         name=name,
-        comment=comment)
+        comment=comment,
+        hg38=hg38,
+        ncbi=ncbi,
+        thermo=thermo
+    )
 
     return html
 
