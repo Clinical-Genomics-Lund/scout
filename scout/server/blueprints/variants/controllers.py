@@ -979,11 +979,15 @@ def variant_verification(store, mail, institute_obj, case_obj, user_obj, variant
                         transcript_line.append(urllib.parse.unquote(tx_obj['protein_sequence_name']))
                     else:
                         transcript_line.append('')
+                    if "strand" in tx_obj:
+                        transcript_line.append(tx_obj['strand'])
+                    else:
+                        transcript_line.append('')
                     if refseq_id in gene_obj['common']['primary_transcripts']:
                         transcript_line.append('<b>primary</b>')
                     else:
                         transcript_line.append('')
-
+                        
                     tx_changes.append("<li>{}</li>".format(':'.join(transcript_line)))
 
     else: #SV
@@ -1065,8 +1069,7 @@ def verification_email_body(case_name, url, display_name, category, subcategory,
            <strong>Case {case_name}</strong>: <a href="{url}">{display_name}</a>
          </li>
          <li><strong>Variant type</strong>: {category} ({subcategory})
-         <li><strong>Breakpoint 1</strong>: {breakpoint_1}</li>
-         <li><strong>Breakpoint 2</strong>: {breakpoint_2}</li>
+         <li><strong>hg19</strong>: {breakpoint_1}</li>
          <li><strong>hg38</strong>: {hg38}</li>
 
          <li><strong>HGNC symbols</strong>: {hgnc_symbol}</li>
