@@ -4,12 +4,57 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 About changelog [here](https://keepachangelog.com/en/1.0.0/)
 
+
 ## [4.x.x]
 
 ### Added
-- Displaying more info on the Causatives page and hiding those not causative at the case level
+
+- Adds functionality to display "Tissue type". Passed via load config.
 
 ### Fixed
+- Fixed variants query by panel (hpo panel + gene panel).
+- Downloaded MT report contains excel files with individuals' display name
+
+## [4.5.1]
+
+### Added
+
+### Fixed
+- update requirement to use PyYaml version >= 5.1
+- Safer code when loading config params in cli base
+
+
+## [4.5.0]
+
+### Added
+- Search for similar cases from scout view CLI
+- Scout cli is now invoked from the app object and works under the app context
+
+### Fixed
+- PyYaml dependency fixed to use version >= 5.1
+
+
+## [4.4.1]
+
+### Added
+- Display SV rank model version when available
+
+### Fixed
+- Fixed upload of delivery report via API
+
+
+## [4.4.0]
+
+### Added
+- Displaying more info on the Causatives page and hiding those not causative at the case level
+- Add a comment text field to Sanger order request form, allowing a message to be included in the email
+- MatchMaker Exchange integration
+- List cases with empty synopsis, missing HPO terms and phenotype groups.
+- Search for cases with open research list, or a given case status (active, inactive, archived)
+
+### Fixed
+- Variant query builder split into several functions
+- Fixed delivery report load bug
 
 
 ## [4.3.3]
