@@ -2,6 +2,7 @@
 import logging
 import os.path
 import urllib.parse
+import subprocess
 
 from pprint import pprint as pp
 
@@ -638,7 +639,7 @@ def observations(store, loqusdb, case_obj, variant_obj):
     obs_data['cases'] = []
     institute_id = variant_obj['institute']
     for case_id in obs_data.get('families', []):
-        if case_id != variant_obj['case_id'] and case_id.startswith(institute_id):
+        if case_id != variant_obj['case_id']: # and case_id.startswith(institute_id):
             other_variant = store.variant(variant_obj['variant_id'], case_id=case_id)
             other_case = store.case(case_id)
             obs_data['cases'].append(dict(case=other_case, variant=other_variant))
@@ -871,7 +872,7 @@ def callers(variant_obj, category='snv'):
     return list(calls)
 
 
-def variant_verification(store, mail, institute_obj, case_obj, user_obj, variant_obj, sender, variant_url, order, url_builder=url_for):
+def variant_verification(store, mail, institute_obj, case_obj, user_obj, variant_obj, sender, variant_url, order, comment, url_builder=url_for):
     """Sand a verification email and register the verification in the database
 
         Args:
@@ -884,9 +885,37 @@ def variant_verification(store, mail, institute_obj, case_obj, user_obj, variant
             sender(str): current_app.config['MAIL_USERNAME']
             variant_url(str): the complete url to the variant (snv or sv), a link that works from outside scout domain.
             order(str): False == cancel order, True==order verification
+            comment(str): sender's entered comment from form
             url_builder(flask.url_for): for testing purposes, otherwise test verification email fails because out of context
     """
 
+    ncbi_chr = {
+            '1': 'NC_000001',
+            '2': 'NC_000002',
+            '3': 'NC_000003',
+            '4': 'NC_000004',
+            '5': 'NC_000005',
+            '6': 'NC_000006',
+            '7': 'NC_000007',
+            '8': 'NC_000008',
+            '9': 'NC_000009',
+            '10':'NC_000010',
+            '11':'NC_000011',
+            '12':'NC_000012',
+            '13':'NC_000013',
+            '14':'NC_000014',
+            '15':'NC_000015',
+            '16':'NC_000016',
+            '17':'NC_000017',
+            '18':'NC_000018',
+            '19':'NC_000019',
+            '20':'NC_000020',
+            '21':'NC_000021',
+            '22':'NC_000022',
+            'X': 'NC_000023',
+            'Y': 'NC_000024'
+    }
+    
     recipients = institute_obj['sanger_recipients']
     if len(recipients) == 0:
         raise MissingSangerRecipientError()
@@ -899,8 +928,14 @@ def variant_verification(store, mail, institute_obj, case_obj, user_obj, variant
     end_chrom = variant_obj.get('end_chrom', chromosome)
     breakpoint_1 = ':'.join([chromosome, str(variant_obj['position'])])
     breakpoint_2 = ':'.join([end_chrom, str(variant_obj.get('end'))])
+
+    hg38 = subprocess.check_output( [ '/data/bnf/scripts/hg38_pos.pl', str(variant_obj['chromosome']), str(variant_obj['position']) ] ).decode('utf-8')
+    hg38_chr, hg38_pos = hg38.split(':')
+    ncbi_link = '<a href="https://www.ncbi.nlm.nih.gov/nuccore/'+ncbi_chr[hg38_chr]+'?report=fasta&from='+str(int(hg38_pos)-500)+'&to='+str(int(hg38_pos)+500)+'">NCBI genomic region</a>'
+    thermo_link = '<a href="https://www.thermofisher.com/order/genome-database/searchResults?searchMode=keyword&CID=&ICID=&productTypeSelect=ceprimer&targetTypeSelect=ceprimer_all&alternateTargetTypeSelect=&alternateProductTypeSelect=&originalCount=0&species=Homo+sapiens&otherSpecies=&additionalFilter=ceprimer-human-exome&keyword=&sequenceInput=&selectedInputType=&chromosome='+hg38_chr+'&chromStart='+hg38_pos+'&chromStop='+hg38_pos+'&vcfUpload=&multiChromoSome=&batchText=&batchUpload=&sequenceUpload=&multiSequence=&multiSequenceNames=&priorSearchTerms=%28NR%29">Order primers from ThermoFisher</a>'
+    
     variant_size = variant_obj.get('length')
-    panels = ', '.join(variant_obj['panels'])
+    panels = ', '.join(variant_obj.get('panels', []))
     hgnc_symbol = ', '.join(variant_obj['hgnc_symbols'])
     email_subj_gene_symbol = None
     if len(variant_obj['hgnc_symbols']) > 3:
@@ -946,7 +981,15 @@ def variant_verification(store, mail, institute_obj, case_obj, user_obj, variant
                         transcript_line.append(urllib.parse.unquote(tx_obj['protein_sequence_name']))
                     else:
                         transcript_line.append('')
-
+                    if "strand" in tx_obj:
+                        transcript_line.append(tx_obj['strand'])
+                    else:
+                        transcript_line.append('')
+                    if refseq_id in gene_obj['common']['primary_transcripts']:
+                        transcript_line.append('<b>primary</b>')
+                    else:
+                        transcript_line.append('')
+                        
                     tx_changes.append("<li>{}</li>".format(':'.join(transcript_line)))
 
     else: #SV
@@ -966,7 +1009,11 @@ def variant_verification(store, mail, institute_obj, case_obj, user_obj, variant
         panels = panels,
         gtcalls = ''.join(gtcalls),
         tx_changes = ''.join(tx_changes) or 'Not available',
-        name = user_obj['name'].encode('utf-8')
+        name = user_obj['name'].encode('utf-8'),
+        comment = comment,
+        hg38 = hg38,
+        ncbi=ncbi_link,
+        thermo=thermo_link
     )
 
     # build a local the link to the variant to be included in the events objects (variant and case) created in the event collection.
@@ -995,7 +1042,7 @@ def variant_verification(store, mail, institute_obj, case_obj, user_obj, variant
     mail.send(message)
 
 
-def verification_email_body(case_name, url, display_name, category, subcategory, breakpoint_1, breakpoint_2, hgnc_symbol, panels, gtcalls, tx_changes, name):
+def verification_email_body(case_name, url, display_name, category, subcategory, breakpoint_1, breakpoint_2, hgnc_symbol, panels, gtcalls, tx_changes, name, comment, hg38, ncbi, thermo):
     """
         Builds the html code for the variant verification emails (order verification and cancel verification)
 
@@ -1012,6 +1059,7 @@ def verification_email_body(case_name, url, display_name, category, subcategory,
             gtcalls(str): genotyping calls of any sample in the family
             tx_changes(str): amino acid changes caused by the variant, only for snvs otherwise 'Not available'
             name(str): user_obj['name'], uft-8 encoded
+            comment(str): sender's comment from form
 
         Returns:
             html(str): the html body of the variant verification email
@@ -1023,14 +1071,18 @@ def verification_email_body(case_name, url, display_name, category, subcategory,
            <strong>Case {case_name}</strong>: <a href="{url}">{display_name}</a>
          </li>
          <li><strong>Variant type</strong>: {category} ({subcategory})
-         <li><strong>Breakpoint 1</strong>: {breakpoint_1}</li>
-         <li><strong>Breakpoint 2</strong>: {breakpoint_2}</li>
+         <li><strong>hg19</strong>: {breakpoint_1}</li>
+         <li><strong>hg38</strong>: {hg38}</li>
+
          <li><strong>HGNC symbols</strong>: {hgnc_symbol}</li>
          <li><strong>Gene panels</strong>: {panels}</li>
          <li><strong>GT call</strong></li>
          {gtcalls}
          <li><strong>Amino acid changes</strong></li>
          {tx_changes}
+         <li>{ncbi}</li>
+         <li>{thermo}</li>
+         <li><strong>Comment</strong>: {comment}</li>
          <li><strong>Ordered by</strong>: {name}</li>
        </ul>
     """.format(
@@ -1045,7 +1097,12 @@ def verification_email_body(case_name, url, display_name, category, subcategory,
         panels=panels,
         gtcalls=gtcalls,
         tx_changes=tx_changes,
-        name=name)
+        name=name,
+        comment=comment,
+        hg38=hg38,
+        ncbi=ncbi,
+        thermo=thermo
+    )
 
     return html
 

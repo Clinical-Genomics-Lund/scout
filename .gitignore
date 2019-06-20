@@ -72,5 +72,7 @@ _book/
 # Emacs (Just so I don't have to see them green in Atom ;-)
 *~
 *#
-scout.wsgi
+
 config.py
+scout.wsgi
+

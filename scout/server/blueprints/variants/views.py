@@ -117,8 +117,6 @@ def variants(institute_id, case_name):
                     hgnc_symbols.append(hgnc_gene['hgnc_symbol'])
             elif store.hgnc_genes(hgnc_symbol).count() == 0:
                   not_found_symbols.append(hgnc_symbol)
-            elif is_clinical and (hgnc_symbol not in clinical_symbols):
-                 non_clinical_symbols.append(hgnc_symbol)
             else:
                 hgnc_symbols.append(hgnc_symbol)
 
@@ -371,8 +369,10 @@ def verify(institute_id, case_name, variant_id, variant_category, order):
     variant_obj = store.variant(variant_id)
     user_obj = store.user(current_user.email)
 
+    comment = request.form.get('verification_comment')
+    
     try:
-        controllers.variant_verification(store=store, mail=mail, institute_obj=institute_obj, case_obj=case_obj, user_obj=user_obj,
+        controllers.variant_verification(store=store, mail=mail, institute_obj=institute_obj, case_obj=case_obj, user_obj=user_obj, comment=comment,
                            variant_obj=variant_obj, sender=current_app.config['MAIL_USERNAME'], variant_url=request.referrer, order=order, url_builder=url_for)
     except controllers.MissingVerificationRecipientError:
         flash('No verification recipients added to institute.', 'danger')
