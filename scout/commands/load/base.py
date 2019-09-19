@@ -13,13 +13,14 @@ from .variants import variants as variants_command
 from .region import region as region_command
 from .user import user as user_command
 from .report import delivery_report as delivery_report_command
+from .exons import exons as exons_command
 
 LOG = logging.getLogger(__name__)
 
 
 @click.group()
 def load():
-    """Load the Scout database."""
+    """Load items into the scout database."""
     pass
 
 
@@ -31,3 +32,4 @@ load.add_command(user_command)
 load.add_command(research_command)
 load.add_command(variants_command)
 load.add_command(delivery_report_command)
+load.add_command(exons_command)

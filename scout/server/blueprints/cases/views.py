@@ -2,6 +2,7 @@
 import os.path
 import shutil
 import datetime
+import pymongo
 
 import zipfile
 import io
@@ -17,7 +18,7 @@ from flask_login import current_user
 from flask_weasyprint import HTML, render_pdf
 from werkzeug.datastructures import Headers
 from dateutil.parser import parse as parse_date
-from scout.constants import CLINVAR_HEADER, CASEDATA_HEADER
+from scout.constants import CLINVAR_HEADER, CASEDATA_HEADER, ACMG_MAP, ACMG_COMPLETE_MAP
 from scout.server.extensions import store, mail
 from scout.server.utils import (templated, institute_and_case, user_institutes)
 from . import controllers
@@ -43,6 +44,7 @@ def index():
 @templated('cases/cases.html')
 def cases(institute_id):
     """Display a list of cases for an institute."""
+
     institute_obj = institute_and_case(store, institute_id)
     query = request.args.get('query')
 
@@ -54,6 +56,17 @@ def cases(institute_id):
     is_research = request.args.get('is_research')
     all_cases = store.cases(collaborator=institute_id, name_query=query,
                         skip_assigned=skip_assigned, is_research=is_research)
+
+    LOG.info(type(all_cases))
+    sort_by = request.args.get('sort')
+    if sort_by:
+        if sort_by == 'analysis_date':
+            all_cases.sort('analysis_date', pymongo.DESCENDING)
+        elif sort_by == 'track':
+            all_cases.sort('track', pymongo.ASCENDING)
+        elif sort_by == 'status':
+            all_cases.sort('status', pymongo.ASCENDING)
+
     LOG.debug("Prepare all cases")
     data = controllers.cases(store, all_cases, limit)
 
@@ -316,7 +329,18 @@ def matchmaker_delete(institute_id, case_name):
 @templated('cases/causatives.html')
 def causatives(institute_id):
     institute_obj = institute_and_case(store, institute_id)
-    variants = store.check_causatives(institute_obj=institute_obj)
+    query = request.args.get('query', '')
+    hgnc_id = None
+    if '|' in query:
+        # filter accepts an array of IDs. Provide an array with one ID element
+        try:
+            hgnc_id = [int(query.split(' | ', 1)[0])]
+        except ValueError:
+            flash('Provided gene info could not be parsed!', 'warning')
+
+    variants = store.check_causatives(institute_obj=institute_obj,limit_genes=hgnc_id)
+    if variants:
+        variants.sort("hgnc_symbols", pymongo.ASCENDING)
     all_variants = {}
     all_cases = {}
     for variant_obj in variants:
@@ -327,6 +351,11 @@ def causatives(institute_id):
             case_obj = all_cases[variant_obj['case_id']]
 
         if variant_obj['variant_id'] not in all_variants:
+            # capture ACMG classification for this variant
+            if isinstance(variant_obj.get('acmg_classification'), int):
+                acmg_code = ACMG_MAP[variant_obj['acmg_classification']]
+                variant_obj['acmg_classification'] = ACMG_COMPLETE_MAP[acmg_code]
+
             all_variants[variant_obj['variant_id']] = []
         all_variants[variant_obj['variant_id']].append((case_obj, variant_obj))
 
@@ -381,10 +410,10 @@ def gene_variants(institute_id):
 
         LOG.debug("query {}".format(form.data))
 
-        variants_query = store.gene_variants(query=form.data, category='snv',
-                            variant_type=variant_type)
+        variants_query = store.gene_variants(query=form.data, institute_id=institute_id,
+                                             category='snv', variant_type=variant_type)
 
-        data = controllers.gene_variants(store, variants_query, page)
+        data = controllers.gene_variants(store, variants_query, institute_id, page)
 
     return dict(institute=institute_obj, form=form, page=page, **data)
 

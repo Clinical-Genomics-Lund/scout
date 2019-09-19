@@ -4,16 +4,82 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 About changelog [here](https://keepachangelog.com/en/1.0.0/)
 
-
 ## [4.x.x]
 
 ### Added
 
-- Adds functionality to display "Tissue type". Passed via load config.
+### Fixed
+
+
+
+## [4.7.1]
+
+### Added
 
 ### Fixed
+- Fixed bug on genes page
+
+
+## [4.7.0]
+
+### Added
+- Export genes and gene panels in build GRCh38
+- Search for cases with variants pinned or marked causative in a given gene.
+- Search for cases phenotypically similar to a case also from WUI.
+- Case variant searches can be limited to similar cases, matching HPO-terms,
+  phenogroups and cohorts.
+- De-archive reruns and flag them as 'inactive' if archived
+- Sort cases by analysis_date, track or status
+- Display cases in the following order: prioritized, active, inactive, archived, solved
+- Assign case to user when user activates it or asks for rerun
+- Case becomes inactive when it has no assignees
+- Fetch refseq version from entrez and use it in clinvar form
+- Load and export of exons for all genes, independent on refseq
+- Documentation for loading/updating exons
+- Showing SV variant annotations: SV cgh frequencies, gnomad-SV, local SV frequencies
+- Showing transcripts mapping score in segmental duplications
+- Handle requests to Ensembl Rest API  
+- Handle requests to Ensembl Rest Biomart
+- STR variants view now displays GT and IGV link.
+- Description field for gene panels
+- Export exons in build 37 and 38 using the command line
+
+### Fixed
+- Fixes of and induced by build tests
+- Fixed bug affecting variant observations in other cases
+- Fixed a bug that showed wrong gene coverage in general panel PDF export
+- MT report only shows variants occurring in the specific individual of the excel sheet
+- Disable SSL certifcate verification in requests to chanjo
+- Updates how intervaltree and pymongo is used to void deprecated functions
+- Increased size of IGV sample tracks
+- Optimized tests
+
+
+## [4.6.1]
+
+### Added
+
+### Fixed
+- Missing 'father' and 'mother' keys when parsing single individual cases
+
+
+## [4.6.0]
+
+### Added
+- Description of Scout branching model in CONTRIBUTING doc
+- Causatives in alphabetical order, display ACMG classification and filter by gene.
+- Added 'external' to the list of analysis type options
+- Adds functionality to display "Tissue type". Passed via load config.
+- Update to IGV 2.
+
+### Fixed
+- Fixed alignment visualization and vcf2cytosure availability for demo case samples
+- Fixed 3 bugs affecting SV pages visualization
+- Reintroduced the --version cli option
 - Fixed variants query by panel (hpo panel + gene panel).
 - Downloaded MT report contains excel files with individuals' display name
+- Refactored code in parsing of config files.
+
 
 ## [4.5.1]
 

@@ -7,6 +7,28 @@ TRAVIS = os.getenv('TRAVIS')
 
 log = logging.getLogger(__name__)
 
+def test_variant(real_variant_database, variant_objs, case_obj):
+    """"Test querying a variant"""
+    adapter = real_variant_database
+    test_variant = list(variant_objs)[0]
+
+    # try to collect the variant from database using its document_id:
+    variant_a = adapter.variant(document_id=test_variant['_id'])
+    assert variant_a
+
+    # try to collect the variant from database using its document_id and case id:
+    variant_b = adapter.variant(document_id=test_variant['variant_id'], case_id=case_obj['_id'])
+    assert variant_b
+    # it should be the same variant as before:
+    assert variant_a == variant_b
+
+    # try to collect the variant from database using its case id and simple_id:
+    variant_c = adapter.variant(simple_id=test_variant['simple_id'], case_id=case_obj['_id'])
+    assert variant_c
+    # it should be the same as the other 2 variants:
+    assert variant_c == variant_a
+
+
 def test_query_all_gene_variants(real_variant_database):
     """"Test querying gene variants using gene symbol."""
     adapter = real_variant_database
@@ -20,9 +42,10 @@ def test_query_all_gene_variants(real_variant_database):
     assert gene_symbol
 
     # direct query fpr
-    nr_high_ranked_variants_in_gene = adapter.variant_collection.find({
+    res = adapter.variant_collection.find({
         '$and': [{'hgnc_symbols': gene_symbol}, {'rank_score': {'$gte': 5}},
-                 {'category': 'snv'}, {'variant_type': 'clinical'}]} ).count()
+                 {'category': 'snv'}, {'variant_type': 'clinical'}]} )
+    nr_high_ranked_variants_in_gene = sum(1 for i in res)
     log.info("Number of high ranked variants in %s: %s", gene_symbol, nr_high_ranked_variants_in_gene)
 
     assert nr_high_ranked_variants_in_gene > 0
@@ -34,7 +57,7 @@ def test_query_all_gene_variants(real_variant_database):
 
     # THEN the same number of variants should be returned by the query function
     result = adapter.gene_variants(query=gene_variants_query, nr_of_variants=-1)
-    assert result.count() == nr_high_ranked_variants_in_gene
+    assert sum(1 for i in result) == nr_high_ranked_variants_in_gene
 
 def test_load_variants(real_populated_database, variant_objs, case_obj):
     """Test to load variants into a mongo database"""
@@ -42,7 +65,8 @@ def test_load_variants(real_populated_database, variant_objs, case_obj):
     case_id = case_obj['_id']
     # Make sure that there are no variants in the database
     # GIVEN a populated database without any variants
-    assert adapter.variants(case_id=case_id, nr_of_variants=-1).count() == 0
+    res = adapter.variants(case_id=case_id, nr_of_variants=-1)
+    assert sum(1 for i in res) == 0
 
     # WHEN adding a number of variants
     for index, variant_obj in enumerate(variant_objs):
@@ -51,29 +75,9 @@ def test_load_variants(real_populated_database, variant_objs, case_obj):
 
     # THEN the same number of variants should have been loaded
     result = adapter.variants(case_id=case_id, nr_of_variants=-1)
-    log.info("Number of variants loaded:%s", result.count())
-    assert result.count() == index + 1
-
-# def test_manual_rank(real_populated_database, variant_objs, case_obj):
-#     """Check that the manual rank is added"""
-#     adapter = real_populated_database
-#     case_id = case_obj['_id']
-#     # Make sure that there are no variants in the database
-#     # GIVEN a populated database without any variants
-#     assert adapter.variants(case_id=case_id, nr_of_variants=-1).count() == 0
-#
-#     # WHEN adding a number of variants
-#     for index, variant_obj in enumerate(variant_objs):
-#         # print(variant_obj)
-#         adapter.load_variant(variant_obj)
-#
-#     # THEN the same number of variants should have been loaded
-#     result = adapter.variants(case_id=case_id, nr_of_variants=-1)
-#     log.info("Number of variants loaded:%s", result.count())
-#
-#     for variant in result:
-#         assert 'variant_rank' in variant
-
+    nr_variants = sum(1 for i in result)
+    log.info("Number of variants loaded:%s", nr_variants)
+    assert nr_variants == index + 1
 
 def test_load_sv_variants(real_populated_database, sv_variant_objs, case_obj):
     """Test to load variants into a mongo database"""
@@ -81,7 +85,8 @@ def test_load_sv_variants(real_populated_database, sv_variant_objs, case_obj):
     case_id = case_obj['_id']
 
     # GIVEN a populated database without any sv variants
-    assert adapter.variants(case_id=case_id, nr_of_variants=-1).count() == 0
+    res = adapter.variants(case_id=case_id, nr_of_variants=-1)
+    assert sum(1 for i in res) == 0
 
     # WHEN adding a number of sv variants
     for index, variant_obj in enumerate(sv_variant_objs):
@@ -89,7 +94,7 @@ def test_load_sv_variants(real_populated_database, sv_variant_objs, case_obj):
 
     # THEN the same number of SV variants should have been loaded
     result = adapter.variants(case_id=case_id, nr_of_variants=-1, category='sv')
-    assert result.count() == index + 1
+    assert sum(1 for i in result) == index + 1
 
 
 def test_load_all_variants(real_populated_database, case_obj):
@@ -97,7 +102,8 @@ def test_load_all_variants(real_populated_database, case_obj):
     case_id = case_obj['_id']
 
     ## GIVEN a populated database without any variants
-    assert adapter.variants(case_id=case_id, nr_of_variants=-1).count() == 0
+    res = adapter.variants(case_id=case_id, nr_of_variants=-1)
+    assert sum(1 for i in res) == 0
 
     ## WHEN loading all variants into the database
     nr_loaded = adapter.load_variants(case_obj=case_obj, variant_type='clinical',
@@ -107,13 +113,14 @@ def test_load_all_variants(real_populated_database, case_obj):
     # THEN the same number of SV variants should have been loaded
     result = adapter.variants(case_id=case_id, nr_of_variants=-1, category='snv')
 
-    assert nr_loaded == result.count()
+    assert nr_loaded == sum(1 for i in result)
 
 def test_load_whole_gene(real_populated_database, variant_objs, case_obj):
     adapter = real_populated_database
     case_id = case_obj['_id']
 
-    assert adapter.variants(case_id=case_id, nr_of_variants=-1).count() == 0
+    res = adapter.variants(case_id=case_id, nr_of_variants=-1)
+    assert sum(1 for i in res) == 0
 
     nr_loaded = adapter.load_variants(case_obj=case_obj, variant_type='clinical',
                           category='snv', rank_threshold=None, chrom=None,
@@ -123,13 +130,16 @@ def test_load_whole_gene(real_populated_database, variant_objs, case_obj):
     hgnc_id = 3233
     gene_obj = adapter.hgnc_gene(hgnc_id)
     assert gene_obj
-    nr_variants_in_gene = adapter.variant_collection.find({'hgnc_ids': hgnc_id}).count()
+    res = adapter.variant_collection.find({'hgnc_ids': hgnc_id})
+    nr_variants_in_gene = sum(1 for i in res)
 
     ## WHEN loading all variants for that gene
     nr_loaded = adapter.load_variants(case_obj=case_obj, variant_type='clinical',
                           category='snv', rank_threshold=None, chrom=None,
                           start=None, end=None, gene_obj=gene_obj)
-    new_nr_variants_in_gene = adapter.variant_collection.find({'hgnc_ids': hgnc_id}).count()
+
+    res = adapter.variant_collection.find({'hgnc_ids': hgnc_id})
+    new_nr_variants_in_gene = sum(1 for i in res)
 
     ## Then assert that the other variants where loaded
     assert new_nr_variants_in_gene > nr_variants_in_gene
@@ -138,7 +148,8 @@ def test_load_coordinates(real_populated_database, variant_objs, case_obj):
     adapter = real_populated_database
     case_id = case_obj['_id']
 
-    assert adapter.variants(case_id=case_id, nr_of_variants=-1).count() == 0
+    res = adapter.variants(case_id=case_id, nr_of_variants=-1)
+    assert sum(1 for i in res) == 0
 
     nr_loaded = adapter.load_variants(case_obj=case_obj, variant_type='clinical',
                           category='snv', rank_threshold=None, chrom=None,
@@ -148,14 +159,16 @@ def test_load_coordinates(real_populated_database, variant_objs, case_obj):
     hgnc_id = 3233
     gene_obj = adapter.hgnc_gene(hgnc_id)
     assert gene_obj
-    nr_variants_in_gene = adapter.variant_collection.find({'hgnc_ids': hgnc_id}).count()
+    res = adapter.variant_collection.find({'hgnc_ids': hgnc_id})
+    nr_variants_in_gene = sum(1 for i in res)
 
     ## WHEN loading all variants for that gene
     nr_loaded = adapter.load_variants(case_obj=case_obj, variant_type='clinical',
                           category='snv', rank_threshold=None, chrom=gene_obj['chromosome'],
                           start=gene_obj['start'], end=gene_obj['end'], gene_obj=None)
 
-    new_nr_variants_in_gene = adapter.variant_collection.find({'hgnc_ids': hgnc_id}).count()
+    res = adapter.variant_collection.find({'hgnc_ids': hgnc_id})
+    new_nr_variants_in_gene = sum(1 for i in res)
 
     ## Then assert that the other variants where loaded
     assert new_nr_variants_in_gene > nr_variants_in_gene
