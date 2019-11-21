@@ -477,23 +477,152 @@
                   {% else %}
                     <span class="text-muted">MT BAM file(s) missing</span>
                   {% endif %}
-                {% elif case.bam_files %}
-                  <input type="hidden" name="bam" value="{{case.bam_files|join(',')}}">
-                  <input type="hidden" name="bai" value="{{case.bai_files|join(',')}}">
-                  {% if case.rhocall_beds %}
-                    <input type="hidden" name="rhocall_bed" value="{{case.rhocall_beds|join(',')}}">
-                    <input type="hidden" name="rhocall_wig" value="{{case.rhocall_wigs|join(',')}}">
-                  {% endif %}
-                  {% if case.tiddit_coverage_wigs %}
-                    <input type="hidden" name="tiddit_coverage_wig" value="{{case.tiddit_coverage_wigs|join(',')}}">
-                  {% endif %}
-                  {% if case.upd_regions_beds %}
-                    <input type="hidden" name="upd_regions_bed" value="{{case.upd_regions_beds|join(',')}}">
-                  {% endif %}
-                  {% if case.upd_sites_beds %}
-                    <input type="hidden" name="upd_sites_bed" value="{{case.upd_sites_beds|join(',')}}">
-                  {% endif %}
-                  <button class="btn btn-outline-secondary btn-sm" name="align" value="bam" type="submit">IGV viewer</button>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        {% endif %}
+      </ul>
+      <!--div class="panel-heading">Local observations (archive 2017-05-31)</div>
+      <ul class="list-group">
+        <li class="list-group-item">
+          <div class="row">
+            <div class="col-4">
+              {{ variant.local_obs_old or 'N/A' }} <small>obs.</small>
+            </div>
+            <div class="col-4">
+              {{ variant.local_obs_hom_old or 'N/A' }} <small>homo.</small>
+            </div>
+            <div class="col-4">
+              {{ variant.local_obs_total_old or 638 }} <small>tot.</small>
+            </div>
+          </div>
+        </li>
+      </ul-->
+    {% endif %}
+</div>
+{% endmacro %}
+
+{% macro severity_list() %}
+  <div class="card mt-3 panel-default">
+    <div class="panel-heading">Severity</div>
+    <ul class="list-group">
+      <li class="list-group-item">
+        Sift
+        <span class="float-right">{{ variant.sift_predictions|join(', ') }}</span>
+      </li>
+      <li class="list-group-item">
+        <a href="http://genetics.bwh.harvard.edu/pph2/" target="_blank">Polyphen</a>
+        <span class="float-right">{{ variant.polyphen_predictions|join(', ') }}</span>
+      </li>
+      <li class="list-group-item">
+        SPIDEX
+        <span class="float-right">{{ variant.spidex_human }}</span>
+      </li>
+    </ul>
+    <div class="panel-heading">Conservation</div>
+    <ul class="list-group">
+      <li class="list-group-item">
+        PHAST
+        <span class="float-right">{{ variant.phast_conservation|join(', ') or '-' }}</span>
+      </li>
+      <li class="list-group-item">
+        GERP
+        <span class="float-right">{{ variant.gerp_conservation|join(', ') or '-' }}</span>
+      </li>
+      <li class="list-group-item">
+        phyloP
+        <span class="float-right">{{ variant.phylop_conservation|join(', ') or '-' }}</span>
+      </li>
+    </ul>
+    <div class="panel-heading">Mappability (<a href="http://genome.ucsc.edu/cgi-bin/hgTrackUi?g=genomicSuperDups" target="_blank">fracMatch</a>)</div>
+    {% set superdups_fracmatches = [] %}
+    {% for gene in variant.genes %}
+      {% for transcript in gene.transcripts %}
+        {% if transcript.superdups_fracmatch %}
+          {% for superdup in transcript.superdups_fracmatch %}
+            {% do superdups_fracmatches.append(superdup) %}
+          {% endfor %}
+        {% endif %}
+      {% endfor %}
+    {% endfor %}
+    {% set superdups_fracmatches = superdups_fracmatches|sort %}
+    <div class="panel-body">
+        {% if superdups_fracmatches %}
+          <span>mapping to {{superdups_fracmatches|length}} segm. dups. (min matching:{{ superdups_fracmatches|first|float|round(3) }}, max matching:{{ superdups_fracmatches|last|float|round(3) }})</span>
+        {% else %}
+          <span> - </span>
+        {% endif %}
+    </div>
+  </div>
+{% endmacro %}
+
+{% macro inheritance_panel() %}
+  <div class="card mt-3 panel-default">
+    <div class="panel-heading">Gene annotations</div>
+      <ul class="list-group">
+        <li class="list-group-item">
+          Variant inheritance models
+          <span class="float-right">
+            {% for model in variant.genetic_models|sort %}
+              <span class="badge badge-info">{{ model }}</span>
+            {% else %}
+              <span class="badge badge-warning">No models followed</span>
+            {% endfor %}
+          </span>
+        </li>
+      </ul>
+
+      {% if variant.azlength %}
+      <div class="panel-heading">Autozygous region</div>
+      <table class="table table-bordered table-fixed table-sm">
+        <tbody>
+          <tr>
+            <td>
+              Length
+              <span class="float-right">{{ variant.azlength }}</span>
+            </td>
+            <td>
+              Qual
+              <span class="float-right">{{ variant.azqual }}</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      {% endif %}
+
+      <h6 class="card-header">Gene models:</h6>
+      <table class="table table-bordered table-sm">
+        <thead>
+          <tr>
+            <th rowspan="2">Gene</th>
+            <th colspan="2">Inheritance</th>
+            <th colspan="2">Penetrance</th>
+          </tr>
+          <tr>
+            <th>OMIM</th>
+            <th>Manual</th>
+            <th>OMIM</th>
+            <th>Manual</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for gene in variant.genes %}
+            <tr>
+              <td>{{ gene.hgnc_symbol }}</td>
+              <td>
+                {% for model in gene.omim_inheritance %}
+                  <span class="badge badge-info">{{ model }}</span>
+                {% endfor %}
+              </td>
+              <td>
+                {% for model in gene.manual_inheritance %}
+                  <span class="badge badge-info">{{ model }}</span>
+                {% endfor %}
+              </td>
+              <td>
+                {% if gene.omim_penetrance %}
+                  <span class="badge badge-success">yes</span>
                 {% else %}
                   <span class="text-muted">BAM file(s) missing</span>
                 {% endif %}
