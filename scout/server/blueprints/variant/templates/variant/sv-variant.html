@@ -65,9 +65,87 @@
     </div> <!-- end of col -->
 
     <div class="col-md-6">
-      {{ panel_summary() }}
-    </div> <!-- end of col -->
-  </div> <!-- end of row -->
+      <div class="card mt-3">
+        <ul class="list-group">
+          <li class="list-group-item">
+            Position
+            <div class="float-right">
+              {{ variant.chromosome }}:{{ variant.position }} {{ "-" if variant.end_chrom == variant.chromosome else " / "+variant.end_chrom+":" }}{{ variant.end }}
+            </div>
+          </li>
+
+	  <li class="list-group-item">
+	    Copynumber profile
+	    <div class="float-right">
+              {% for sample in variant.samples %}
+	      <a class="btn btn-outline-secondary btn-sm" href="http://10.0.224.64/gens/{{sample.display_name}}?region={{variant.chromosome}}:{{variant.position-2000}}-{{variant.end+2000}}&hg_type=38" target="_blank">Gens ({{sample.display_name}})</a>
+	      {% endfor %}
+	    </div>
+	  </li>
+
+          <li class="list-group-item">
+            Breakpoint 1
+            <div class="float-right">
+              {{ variant.chromosome }}:{{ variant.position }}
+              {% if variant.chromosome == "MT" and case.mt_bams %}
+                - Alignment:
+                <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('alignviewers.igv', sample=case.sample_names, build=case.genome_build, bam=case.mt_bams, bai=case.mt_bais, contig=variant.chromosome, start=(variant.position - 500), stop=(variant.position + 500)) }}" target="_blank">IGV viewer</a>
+              {% elif case.bam_files %}
+                - Alignment:
+                <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('alignviewers.igv', bam=case.bam_files, bai=case.bai_files, sample=case.sample_names, build=case.genome_build, contig=variant.chromosome, start=(variant.position - 500), stop=(variant.position + 500)) }}" target="_blank">IGV</a>
+              {% else %}
+                - BAM file(s) missing
+              {% endif %}
+		- <a class="btn btn-outline-secondary btn-sm" href="http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&position=chr{{ variant.chromosome }}:{{ variant.position }}&dgv=pack&knownGene=pack&omimGene=pack" target="_blank">UCSC</a>
+            </div>
+          </li>
+          <li class="list-group-item">
+            Breakpoint 2
+            <div class="float-right">
+              {{ variant.end_chrom }}:{{ variant.end }}
+              {% if variant.end_chrom == "MT" and case.mt_bams %}
+                - Alignment:
+                <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('alignviewers.igv', sample=case.sample_names, build=case.genome_build, bam=case.mt_bams, bai=case.mt_bais, contig=variant.end_chrom, start=(variant.end - 500), stop=(variant.end + 500)) }}" target="_blank">IGV viewer</a>
+              {% elif case.bam_files %}
+                - Alignment:
+                <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('alignviewers.igv', bam=case.bam_files, bai=case.bai_files, sample=case.sample_names, build=case.genome_build, contig=variant.end_chrom, start=(variant.end - 500), stop=(variant.end + 500)) }}" target="_blank">IGV</a>
+              {% else %}
+                - BAM file(s) missing
+              {% endif %}
+                - <a class="btn btn-outline-secondary btn-sm" href="http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&position=chr{{ variant.end_chrom }}:{{ variant.end }}&dgv=pack&knownGene=pack&omimGene=pack" target="_blank">UCSC</a>
+            </div>
+          </li>
+  	      <li class="list-group-item">
+  	        Cytoband
+            <div class="float-right">
+              {% if variant.chromosome == variant.end_chrom and variant.cytoband_start == variant.cytoband_end %}
+                {{ variant.chromosome }}{{ variant.cytoband_start }}
+              {% elif variant.chromosome == variant.end_chrom %}
+                {{ variant.chromosome }}{{ variant.cytoband_start }}{{ variant.cytoband_end }}
+              {% else %}
+                {{ variant.chromosome }}{{ variant.cytoband_start }}-{{variant.end_chrom}}{{ variant.cytoband_end }}
+              {% endif %}
+            </div>
+  	      </li>
+  	      <li class="list-group-item">
+  	        Length
+            <div class="float-right">
+              {{ variant.length }}
+              {% if variant.chromosome == "MT" and case.mt_bams %}
+                - Alignment:
+                <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('alignviewers.igv', sample=case.sample_names, build=case.genome_build, bam=case.mt_bams, bai=case.mt_bais, contig=variant.chromosome, start=(variant.position - 500), stop=(variant.end + 500)) }}" target="_blank">IGV viewer</a>
+              {% elif case.bam_files and variant.chromosome == variant.end_chrom %}
+                - Alignment:
+                <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('alignviewers.igv', bam=case.bam_files, bai=case.bai_files, sample=case.sample_names, build=case.genome_build, contig=variant.chromosome, start=(variant.position - 500), stop=(variant.end + 500)) }}" target="_blank">IGV</a>
+              {% elif case.bam_files %}
+                - Complex rearrangement: check breakpoint alignments.
+              {% else %}
+                - BAM file(s) missing
+              {% endif %}
+              {% if variant.chromosome == variant.end_chrom %}
+              - <a class="btn btn-outline-secondary btn-sm" href="http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&position=chr{{ variant.chromosome }}:{{ variant.position }}-{{ variant.end }}&dgv=pack&knownGene=pack&omimGene=pack" target="_blank">UCSC</a>
+              {% endif %}
+            </div>
 
   <div class="row">
     <div class="col-md-8">{{ gtcall_panel(variant) }}</div>
