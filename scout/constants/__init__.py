@@ -140,7 +140,6 @@ CALLERS = {
     "cancer_sv": [{"id": "manta", "name": "Manta"}],
     "sv": [
         {"id": "cnvnator", "name": "CNVnator"},
-        {"id": "delly", "name": "Delly"},
         {"id": "tiddit", "name": "TIDDIT"},
         {"id": "manta", "name": "Manta"},
     ],
