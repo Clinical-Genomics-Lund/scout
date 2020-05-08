@@ -487,47 +487,6 @@ def ucsc_link(variant_obj, build=None):
     return url_template.format(this=variant_obj)
 
 
-def mycancergenome(hgnc_symbol, protein_sequence_name):
-    link = "https://www.mycancergenome.org/content/alteration/{}-{}"
-
-    if not hgnc_symbol:
-        return None
-    if not protein_sequence_name:
-        return None
-
-    protein_change = amino_acid_residue_change_3_to_1(protein_sequence_name)
-
-    if not protein_change:
-        return None
-
-    return link.format(hgnc_symbol, protein_change.lower())
-
-
-def cbioportal(hgnc_symbol, protein_sequence_name):
-    link = "https://www.cbioportal.org/ln?q={}:MUT%20%3D{}"
-
-    if not hgnc_symbol:
-        return None
-    if not protein_sequence_name:
-        return None
-
-    protein_change = amino_acid_residue_change_3_to_1(protein_sequence_name)
-
-    if not protein_change:
-        return None
-
-    return link.format(hgnc_symbol, protein_change)
-
-
-def mutantp53(hgnc_id, protein_variant):
-    if hgnc_id != 11998:
-        return None
-
-    url_template = "http://mutantp53.broadinstitute.org/?query={}"
-
-    return url_template.format(protein_variant)
-
-
 def alamut_link(variant_obj, build=None):
     build = build or 37
 
