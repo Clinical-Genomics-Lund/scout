@@ -16,6 +16,7 @@ services:
       - ./scout:/scout/scout
       - ./scripts:/scout/scripts
       - ./tests:/scout/tests
+      - ./volumes/scout/data:/scout/data
     environment:
       - FLASK_ENV=development
     ports:
