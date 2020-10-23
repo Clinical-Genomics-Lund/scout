@@ -13,7 +13,7 @@ Flask-WeasyPrint
 coloredlogs
 query_phenomizer
 Flask-Babel
-livereload
+livereload==2.5.1
 python-dateutil
 pymongo>=3.7
 pathlib
