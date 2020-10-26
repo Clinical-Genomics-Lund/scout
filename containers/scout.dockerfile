@@ -7,7 +7,7 @@ COPY requirements* setup* README.md containers/utils/wait-for-it.sh /scout/
 COPY scout scout/scout/
 WORKDIR /scout
 
-RUN apt-get update && apt upgrade &&                                    \
+RUN apt-get update && apt-get upgrade -y &&                             \
     apt-get install -y                                                  \
         autoconf automake build-essential                               \
         gcc libbz2-dev libcairo2 libcurl4-gnutls-dev                    \
