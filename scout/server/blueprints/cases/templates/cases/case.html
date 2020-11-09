@@ -1,5 +1,5 @@
 {% extends "layout_bs4.html" %}
-{% from "cases/collapsible_actionbar.html" import action_bar, research_modal, rerun_modal %}
+{% from "cases/collapsible_actionbar.html" import action_bar, research_modal, rerun_modal, reanalysis_modal %}
 {% from "utils.html" import comments_panel, activity_panel, pedigree_panel %}
 {% from "cases/utils.html" import causatives_list, suspects_list, remove_form, matching_causatives, matching_managed_variants %}
 {% from "cases/individuals_table.html" import cancer_individuals_table, individuals_table %}
@@ -149,6 +149,7 @@
         {{ modal_synopsis() }}
         {{ rerun_modal(institute, case) }}
         {{ research_modal(institute, case) }}
+        {{ reanalysis_modal(institute, case) }}
     </div> <!-- end of card body -->
   </div> <!-- end of card div-->
 </div>
@@ -412,6 +413,8 @@
 
 {% block scripts %}
 {{ super() }}
+<link rel="stylesheet" href="{{ url_for('cases.static', filename='case_styles.css') }}"></link>
+<script src="{{ url_for('cases.static', filename='edit_pedigree.js') }}"></script>
 <script src="{{ url_for('cases.static', filename='madeline.js') }}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-table-headers/0.1.19/js/jquery.stickytableheaders.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-3-typeahead/4.0.2/bootstrap3-typeahead.min.js"></script>
