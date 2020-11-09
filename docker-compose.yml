@@ -8,6 +8,32 @@ services:
       - "27017:27017"
     networks:
       - scout-net
+  rerunner:
+    build:
+      context: containers
+      dockerfile: rerunner/rerunner.dockerfile
+    volumes:
+      - ./containers/rerunner/app:/rerunner/app
+      - ./containers/rerunner/config.yml:/rerunner/config.yml
+      - ./containers/rerunner/init.sh:/rerunner/init.sh
+    environment:
+      - FLASK_ENV=development
+      - FLASK_APP=app
+      - SSH_KEY_FILENAME=/run/secrets/id_rsa
+      - API_SECRET_KEY=secret
+    ports:
+      - "5001:5000"
+    networks:
+      - scout-net
+    depends_on:
+      - db
+    entrypoint: "./init.sh"
+    command: "./wait-for-it.sh db:27017 -- flask run --host 0.0.0.0"
+    secrets:
+      - id_rsa
+    configs:
+      - source: ped_conf
+        target: /rerunner/app/config.yml
   web:
     build:
       context: .
@@ -36,3 +62,9 @@ networks:
       driver: default
       config:
         - subnet: 172.21.0.0/24
+secrets:
+  id_rsa:
+    file: containers/rerunner/auth/id_rsa-cmdscout3
+configs:
+  ped_conf:
+    file: containers/rerunner/config.yml
