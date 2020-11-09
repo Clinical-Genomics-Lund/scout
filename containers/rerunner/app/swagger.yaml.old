@@ -1,0 +1,66 @@
+swagger: '2.0'
+info:
+  title: Scout reanalysis API
+  version: "1.0"
+  description: API to initiate new reruns
+  license: 
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+basePath: /v1.0
+paths:
+  /rerun:
+    post:
+      summary: Recives information required to toggle a rerun
+      description: Toggle a pedigree reanalysis of either a subset or with modified pedigree information of a case.
+      operationId: app.api.toggle_rerun
+      parameters:
+        - name: case_id
+          description: The unique id for the case
+          in: query
+          required: true
+          schema:
+            $ref: "#/definitions/UniqueId"
+        - name: sample_ids
+          description: Unique identifiers of the samples to include. Empty list will be interpretted as all.
+          in: query
+          required: false
+          type: array
+          items:
+            schema:
+              $ref: "#/definitions/UniqueId"
+      responses:
+        '204':
+          description: Success description
+definitions:
+  Sex:
+    description: Encoding of sex, 0 = unknown; 1 = male; 2 = female
+    type: integer
+    format: int32
+    minimum: 0
+    maximumn: 2
+  Affected:
+    description: Is sick
+    type: boolean
+  UniqueId:
+    desription: Unique id format
+    type: sting
+    pattern: "^[0-9]{4}-[0-9]{2}$"
+  ModificatedData:
+    description: The data to be modified
+    type: object
+    required:
+      - sample_id
+    properties:
+      sample_id:
+        description: Unique sample id
+        $ref: "#/definitions/UniqueId"
+      sex:
+        description: Unique sample id
+        $ref: "#/definitions/Sex"
+      affected:
+        description: Unique sample id
+        $ref: "#/definitions/Affected"
+    example:
+      sample_id: 1234-56
+      sex: 1
+      affected: true
