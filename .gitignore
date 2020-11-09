@@ -5,6 +5,7 @@
 
 # Packages
 *.egg
+*.eggs
 *.egg-info
 eggs
 parts
@@ -78,7 +79,7 @@ volumes/mongodb/data/*
 volumes/scout/data/*
 !volumes/scout/data/.gitkeep
 
-#PED maker
+#Rerunner
 containers/rerunner/auth/*
 !containers/rerunner/auth/.gitkeep
 
