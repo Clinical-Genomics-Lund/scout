@@ -78,6 +78,10 @@ volumes/mongodb/data/*
 volumes/scout/data/*
 !volumes/scout/data/.gitkeep
 
+#PED maker
+containers/rerunner/auth/*
+!containers/rerunner/auth/.gitkeep
+
 # Emacs (Just so I don't have to see them green in Atom ;-)
 *~
 *#
