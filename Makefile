@@ -10,9 +10,9 @@ build:    ## Build new images
 	docker-compose build
 init:    ## Initialize scout database
 	docker-compose up --detach
-	docker-compose exec web yes | scout --host db setup database
+	docker-compose exec web scout --host db setup database --yes
 	docker-compose exec web scout --host db load panel scout/demo/panel_1.txt
-	docker-compose exec web scout --host db case scout/demo/643594.config.yaml
+	docker-compose exec web scout --host db load case scout/demo/643594.config.yaml
 	echo "Setup scout demo database"
 	docker-compose down
 up:    ## Run Scout software
