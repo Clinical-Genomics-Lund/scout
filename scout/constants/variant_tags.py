@@ -104,12 +104,12 @@ CANCER_TIER_OPTIONS = {
 }
 
 MANUAL_RANK_OPTIONS = {
-#    8: {
-#        "label": "KP",
-#        "name": "Known pathogenic",
-#        "description": "Known pathogenic, previously known pathogenic in ClinVar, HGMD, literature, etc",
-#        "label_class": "danger",
-#    },
+    #    8: {
+    #        "label": "KP",
+    #        "name": "Known pathogenic",
+    #        "description": "Known pathogenic, previously known pathogenic in ClinVar, HGMD, literature, etc",
+    #        "label_class": "danger",
+    #    },
     7: {
         "label": "P",
         "name": "Pathogenic",
@@ -119,21 +119,21 @@ MANUAL_RANK_OPTIONS = {
         ),
         "label_class": "danger",
     },
-#    6: {
-#        "label": "NVP",
-#        "name": "Novel validated pathogenic",
-#        "description": "Novel validated pathogenic, novel mutation and validated experimentally",
-#        "label_class": "danger",
-#    },
-#    5: {
-#        "label": "PPP",
-#        "name": "Pathogenic partial phenotype",
-#        "description": (
-#            "Pathogenic partial phenotype, pathogenic variant explains part of patients phenotype, but "
-#            "not all symptoms"
-#        ),
-#        "label_class": "danger",
-#    },
+    #    6: {
+    #        "label": "NVP",
+    #        "name": "Novel validated pathogenic",
+    #        "description": "Novel validated pathogenic, novel mutation and validated experimentally",
+    #        "label_class": "danger",
+    #    },
+    #    5: {
+    #        "label": "PPP",
+    #        "name": "Pathogenic partial phenotype",
+    #        "description": (
+    #            "Pathogenic partial phenotype, pathogenic variant explains part of patients phenotype, but "
+    #            "not all symptoms"
+    #        ),
+    #        "label_class": "danger",
+    #    },
     4: {
         "label": "LP",
         "name": "Likely pathogenic",
@@ -163,80 +163,52 @@ MANUAL_RANK_OPTIONS = {
         "label_class": "default",
     },
     1: {"label": "Benign", "description": "Does not cause phenotype"},
-#    0: {"label": "Other", "description": "Phenotype not related to disease"},
+    #    0: {"label": "Other", "description": "Phenotype not related to disease"},
 }
 
 DISMISS_VARIANT_OPTIONS = {
-    2: {
-        'label': '(F) B/LB ClinVar',
-        'description': '(F) B/LB ClinVar',
-        'evidence': ['clinvar']
-    },
-    3: {
-        'label': '(F) Common gnomAD',
-        'description': '(F) Common gnomAD',
-        'evidence': ['freq']
-    },
-    5: {
-        'label': '(F) Non coding',
-        'description': '(F) Non coding',
-        'evidence': ['transcript']
-    },
+    2: {"label": "(F) B/LB ClinVar", "description": "(F) B/LB ClinVar", "evidence": ["clinvar"]},
+    3: {"label": "(F) Common gnomAD", "description": "(F) Common gnomAD", "evidence": ["freq"]},
+    5: {"label": "(F) Non coding", "description": "(F) Non coding", "evidence": ["transcript"]},
     7: {
-        'label': '(F) Probable artefact',
-        'description': '(F) Probable artefact',
-        'evidence': ['freq', 'GT', 'inheritance_model']
+        "label": "(F) Probable artefact",
+        "description": "(F) Probable artefact",
+        "evidence": ["freq", "GT", "inheritance_model"],
     },
-    11: {
-        'label': '(F) Not in proband',
-        'description': '(F) Not in proband',
-        'evidence': ['GT']
-    },
-    13: {
-        'label': 'B/LB ClinVar',
-        'description': 'B/LB ClinVar',
-        'evidence': ['clinvar']
-    },
-    17: {
-        'label': 'Common gnomAD',
-        'description': 'Common gnomAD',
-        'evidence': ['freq']
-    },
+    11: {"label": "(F) Not in proband", "description": "(F) Not in proband", "evidence": ["GT"]},
+    13: {"label": "B/LB ClinVar", "description": "B/LB ClinVar", "evidence": ["clinvar"]},
+    17: {"label": "Common gnomAD", "description": "Common gnomAD", "evidence": ["freq"]},
     19: {
-        'label': 'No plausible compound',
-        'description': 'No plausible compound',
-        'evidence': ['inheritance_model']
+        "label": "No plausible compound",
+        "description": "No plausible compound",
+        "evidence": ["inheritance_model"],
     },
     23: {
-        'label': 'Not annotated in OMIM',
-        'description': 'Not annotated in OMIM',
-        'evidence': ['OMIM']
+        "label": "Not annotated in OMIM",
+        "description": "Not annotated in OMIM",
+        "evidence": ["OMIM"],
     },
-    29: {
-        'label': 'Predicted benign',
-        'description': 'Predicted benign',
-        'evidence': ['CADD']
-    },
+    29: {"label": "Predicted benign", "description": "Predicted benign", "evidence": ["CADD"]},
     31: {
-        'label': 'Inherited, unaffected parent',
-        'description':'Inherited, unaffected parent',
-        'evidence': ['inheritance_model']
+        "label": "Inherited, unaffected parent",
+        "description": "Inherited, unaffected parent",
+        "evidence": ["inheritance_model"],
     },
     37: {
-        'label': 'Irrelevant phenotype',
-        'description': 'Irrelevant phenotype',
-        'evidence': ['OMIM']
+        "label": "Irrelevant phenotype",
+        "description": "Irrelevant phenotype",
+        "evidence": ["OMIM"],
     },
     41: {
-        'label': 'PubMed, no relevant info',
-        'description':'PubMed, no relevant info',
-        'evidence': ['type']
+        "label": "PubMed, no relevant info",
+        "description": "PubMed, no relevant info",
+        "evidence": ["type"],
     },
     43: {
-        'label': 'Technical issues',
-        'description':'Technical issues',
-        'evidence': ['pileup','GT']
-    }
+        "label": "Technical issues",
+        "description": "Technical issues",
+        "evidence": ["pileup", "GT"],
+    },
 }
 
 MOSAICISM_OPTIONS = {
