@@ -308,7 +308,23 @@
             <input type="hidden" name="upd_sites_bed" value="{{case.upd_sites_beds|join(',')}}">
           {% endif %}
           {% if zoom == "length" and variant.chromosome != variant.end_chrom %}
-            - Complex rearrangement: check breakpoint alignments.
+            {% if case.genome_build == 37 %}
+              - <a class="btn btn-outline-secondary btn-sm" href="http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&position=chr{{ variant.chromosome }}:{{ variant.position }}-{{ variant.end }}&dgv=pack&knownGene=pack&omimGene=pack" target="_blank">UCSC</a>
+            {% elif case.genome_build == 38 %}
+              - <a class="btn btn-outline-secondary btn-sm" href="http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&position=chr{{ variant.chromosome }}:{{ variant.position }}-{{ variant.end }}&dgv=pack&knownGene=pack&omimGene=pack" target="_blank">UCSC</a>
+            {% endif %}
+          {% elif zoom == "start" %}
+            {% if case.genome_build == 37 %}
+              - <a class="btn btn-outline-secondary btn-sm" href="http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&position=chr{{ variant.chromosome }}:{{ variant.position }}&dgv=pack&knownGene=pack&omimGene=pack" target="_blank">UCSC</a>
+            {% elif case.genome_build == 38 %}
+              - <a class="btn btn-outline-secondary btn-sm" href="http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&position=chr{{ variant.chromosome }}:{{ variant.position }}&dgv=pack&knownGene=pack&omimGene=pack" target="_blank">UCSC</a>
+            {% endif %}
+          {% elif zoom == "end" %}
+            {% if case.genome_build == 37 %}
+              - <a class="btn btn-outline-secondary btn-sm" href="http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&position=chr{{ variant.chromosome }}:{{ variant.end }}&dgv=pack&knownGene=pack&omimGene=pack" target="_blank">UCSC</a>
+            {% elif case.genome_build == 38 %}
+              - <a class="btn btn-outline-secondary btn-sm" href="http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&position=chr{{ variant.chromosome }}:{{ variant.end }}&dgv=pack&knownGene=pack&omimGene=pack" target="_blank">UCSC</a>
+            {% endif %}
           {% else %}
             <button class="btn btn-outline-secondary btn-sm" name="align" value="bam" type=submit>IGV</button>
           {% endif %}
