@@ -142,7 +142,9 @@ MANUAL_RANK_OPTIONS = {
     },
     3: {
         "label": "Variant of unknown significance",
+        "name": "Variant of unknown significance",
         "description": "Uncertain significance",
+        "label_class": "primary",
     },
     2: {
         "label": "LB",
@@ -156,14 +158,12 @@ MANUAL_RANK_OPTIONS = {
         "description": "Benign, does not cause phenotype",
         "label_class": "success",
     },
-    0: {
-        "label": "O",
-        "name": "Other",
-        "description": "Other, phenotype not related to disease",
-        "label_class": "default",
-    },
-    1: {"label": "Benign", "description": "Does not cause phenotype"},
-    #    0: {"label": "Other", "description": "Phenotype not related to disease"},
+    #0: {
+    #    "label": "O",
+    #    "name": "Other",
+    #    "description": "Other, phenotype not related to disease",
+    #    "label_class": "default",
+    #},
 }
 
 DISMISS_VARIANT_OPTIONS = {
