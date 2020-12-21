@@ -77,8 +77,8 @@
 	  <li class="list-group-item">
 	    Copynumber profile
 	    <div class="float-right">
-              {% for sample in variant.samples %}
-	      <a class="btn btn-outline-secondary btn-sm" href="http://10.0.224.64/gens/{{sample.display_name}}?region={{variant.chromosome}}:{{variant.position-2000}}-{{variant.end+2000}}&hg_type=38" target="_blank">Gens ({{sample.display_name}})</a>
+        {% for sample in variant.samples %}
+          <a class="btn btn-outline-secondary btn-sm" target="_blank" href="http://10.0.224.53:8111/{{ sample.display_name }}?region={{variant.chromosome}}:{{ variant.position - 2000 }}-{{ variant.end + 2000 }}&variant={{ variant._id }}&hg_type=38">Gens {{ sample.display_name }}</a>
 	      {% endfor %}
 	    </div>
 	  </li>
@@ -272,7 +272,7 @@
             <div>Copy number profile</div>
             <div>
               {% for sample in variant.samples %}
-                <a class="btn btn-outline-secondary btn-sm" href="http://10.0.224.64/gens/{{sample.display_name}}?region={{variant.chromosome}}:{{variant.position-2000}}-{{variant.end+2000}}&hg_type=38" target="_blank">Gens ({{sample.display_name}})</a>
+                <a class="btn btn-outline-dark" target="_blank" href="http://10.0.224.53:8111/{{ sample.display_name }}?region={{variant.chromosome}}:{{ variant.position - 2000 }}-{{ variant.end + 2000 }}&variant={{ variant._id }}&hg_type=38">Gens {{ sample.display_name }}</a>
               {% endfor %}
             </div>
 	  </div>
@@ -282,7 +282,7 @@
             <div>Copy number profile</div>
             <div>
               {% for sample in variant.samples %}
-              <a class="btn btn-outline-dark" target="_blank" href="http://10.0.224.53:8111/{{ sample.display_name }}?region={{variant.chromosome}}:{{ variant.position - 2000 }}-{{ variant.end + 2000 }}&variant={{ variant.variant_id }}&hg_type=38">Gens {{ sample.display_name }}</a>
+              <a class="btn btn-outline-dark" target="_blank" href="http://10.0.224.53:8111/{{ sample.display_name }}?region={{variant.chromosome}}:{{ variant.position - 2000 }}-{{ variant.end + 2000 }}&variant={{ variant._id }}&hg_type=38">Gens {{ sample.display_name }}</a>
               {% endfor %}
             </div>
           </div>
