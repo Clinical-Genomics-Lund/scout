@@ -487,6 +487,15 @@ def ucsc_link(variant_obj, build=None):
     return url_template.format(this=variant_obj)
 
 
+def mutantp53(hgnc_id, protein_variant):
+    if hgnc_id != 11998:
+        return None
+
+    url_template = "http://mutantp53.broadinstitute.org/?query={}"
+
+    return url_template.format(protein_variant)
+
+
 def alamut_link(variant_obj, build=None):
     build = build or 37
 
