@@ -6,11 +6,9 @@ from scout.utils.convert import amino_acid_residue_change_3_to_1
 
 def add_gene_links(gene_obj, build=37):
     """Update a gene object with links
-
     Args:
         gene_obj(dict)
         build(int)
-
     Returns:
         gene_obj(dict): gene_obj updated with many links
     """
@@ -316,12 +314,10 @@ def smart(smart_domain):
 
 def varsome(build, refseq_id, protein_sequence_name):
     """Return a string corresponding to a link to varsome page
-
     Args:
         build(str): chromosome build
         refseq_id(str): transcript refseq id
         protein_sequence_name(str): transcript sequence name
-
     """
 
     if not all([refseq_id, protein_sequence_name]):
@@ -347,11 +343,9 @@ def iarctp53(hgnc_symbol):
 
 def get_variant_links(variant_obj, build=None):
     """Update a variant object with links
-
     Args:
         variant_obj(scout.models.Variant)
         build(int)
-
     Returns:
         links(dict): The variant links
     """
@@ -429,10 +423,8 @@ def swegen_link(variant_obj):
 
 def cosmic_link(variant_obj):
     """Compose link to COSMIC Database.
-
     Args:
         variant_obj(scout.models.Variant)
-
     Returns:
         url_template(str): Link to COSMIC database if cosmic id is present
     """
@@ -487,8 +479,42 @@ def ucsc_link(variant_obj, build=None):
     return url_template.format(this=variant_obj)
 
 
+def mycancergenome(hgnc_symbol, protein_sequence_name):
+    link = "https://www.mycancergenome.org/content/alteration/{}-{}"
+
+    if not hgnc_symbol:
+        return None
+    if not protein_sequence_name:
+        return None
+
+    protein_change = amino_acid_residue_change_3_to_1(protein_sequence_name)
+
+    if not protein_change:
+        return None
+
+    return link.format(hgnc_symbol, protein_change.lower())
+
+
+def cbioportal(hgnc_symbol, protein_sequence_name):
+    link = "https://www.cbioportal.org/ln?q={}:MUT%20%3D{}"
+
+    if not hgnc_symbol:
+        return None
+    if not protein_sequence_name:
+        return None
+
+    protein_change = amino_acid_residue_change_3_to_1(protein_sequence_name)
+
+    if not protein_change:
+        return None
+
+    return link.format(hgnc_symbol, protein_change)
+
+
 def mutantp53(hgnc_id, protein_variant):
     if hgnc_id != 11998:
+        return None
+    if not protein_variant:
         return None
 
     url_template = "http://mutantp53.broadinstitute.org/?query={}"
