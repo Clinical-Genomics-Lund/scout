@@ -158,12 +158,12 @@ MANUAL_RANK_OPTIONS = {
         "description": "Benign, does not cause phenotype",
         "label_class": "success",
     },
-    #0: {
+    # 0: {
     #    "label": "O",
     #    "name": "Other",
     #    "description": "Other, phenotype not related to disease",
     #    "label_class": "default",
-    #},
+    # },
 }
 
 DISMISS_VARIANT_OPTIONS = {
