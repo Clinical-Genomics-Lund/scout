@@ -16,7 +16,7 @@ RUN apt-get update &&                                               \
 	libffi-dev libgdk-pixbuf2.0-0 liblzma-dev libpango-1.0-0        \
 	libpangocairo-1.0-0 libssl-dev make python3-cffi python3-dev    \
 	python3-pip python3-wheel shared-mime-info zlib1g-dev           \
-	openssl ca-certificates gcc
+	openssl ca-certificates gcc wget
 
 # Copy app
 COPY . /usr/src/app
@@ -24,12 +24,17 @@ RUN pip install --upgrade pip &&           \
     pip wheel --no-cache-dir --no-deps     \
         --wheel-dir /usr/src/app/wheels    \
 		Cython gunicorn  &&                \
-    pip wheel --no-cache-dir --no-deps     \
-        --wheel-dir /usr/src/app/wheels    \
-        --requirement requirements.txt &&  \
-    pip wheel --no-cache-dir --no-deps     \
+    pip wheel --no-cache-dir               \
         --wheel-dir /usr/src/app/wheels    \
         --editable .
+
+# Build loqusdb
+RUN wget https://github.com/moonso/loqusdb/archive/v2.5.tar.gz &&  \
+    tar -xzf v2.5.tar.gz &&                                        \
+    cd loqusdb-2.5 &&                                              \
+	pip wheel --no-cache-dir                                       \
+	          --wheel-dir /usr/src/app/loqusdb_wheels              \
+			  --editable .
 
 #########
 # FINAL #
@@ -47,16 +52,25 @@ LABEL about.license="MIT License (MIT)"
 RUN useradd -m app && mkdir -p /home/app/app
 WORKDIR /home/app/app
 
-# Copy pyhon wheels and install software
+# Copy pyhon wheels and install scout
 COPY --from=builder /usr/src/app/wheels /wheels
 RUN apt-get update &&                                     \
     apt-get install -y libgdk-pixbuf2.0-0 libpango-1.0-0  \
 	libcairo2 libpangocairo-1.0-0 &&                      \
     pip install --no-cache-dir --upgrade pip &&           \
     pip install --no-cache-dir /wheels/* &&               \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/* /wheels
+
+# install loqusdb
+COPY --from=builder /usr/src/app/loqusdb_wheels /loqusdb_wheels
+RUN python -m venv /home/app/loqusdb &&                                    \
+    /home/app/loqusdb/bin/pip install --no-cache-dir --upgrade pip &&      \
+    /home/app/loqusdb/bin/pip install --no-cache-dir /loqusdb_wheels/* &&  \
+    rm -rf  /loqusdb_wheels
+
 # Chown all the files to the app user
 COPY . /home/app/app
 RUN chown -R app:app /home/app/app
+
 # Change the user to app
 USER app
