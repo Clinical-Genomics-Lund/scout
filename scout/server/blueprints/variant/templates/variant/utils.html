@@ -62,7 +62,7 @@
             <tr>
               <th>Variant</th>
               <th>Gene</th>
-	            <th>Type</th>
+             <th>Type</th>
               <th>Combined score</th>
               <th>Rank score</th>
               <th>Length</th>
@@ -88,7 +88,7 @@
               </td>
               <td>{{ overlapping_variant.hgnc_symbols|join(', ')|truncate(40, True) }}</td>
               <td>{{ overlapping_variant.sub_category|upper }}</td>
-	            <td class="text-right">{{ variant.rank_score + overlapping_variant.rank_score }}</td>
+             <td class="text-right">{{ variant.rank_score + overlapping_variant.rank_score }}</td>
               <td class="text-right">{{ overlapping_variant.rank_score }}</td>
               <td class="text-right">{{ overlapping_variant.length }}</td>
               <td>{{ overlapping_variant.region_annotations|join(', ')|truncate(40, True) }}</td>
@@ -308,23 +308,7 @@
             <input type="hidden" name="upd_sites_bed" value="{{case.upd_sites_beds|join(',')}}">
           {% endif %}
           {% if zoom == "length" and variant.chromosome != variant.end_chrom %}
-            {% if case.genome_build == 37 %}
-              - <a class="btn btn-outline-secondary btn-sm" href="http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&position=chr{{ variant.chromosome }}:{{ variant.position }}-{{ variant.end }}&dgv=pack&knownGene=pack&omimGene=pack" target="_blank">UCSC</a>
-            {% elif case.genome_build == 38 %}
-              - <a class="btn btn-outline-secondary btn-sm" href="http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&position=chr{{ variant.chromosome }}:{{ variant.position }}-{{ variant.end }}&dgv=pack&knownGene=pack&omimGene=pack" target="_blank">UCSC</a>
-            {% endif %}
-          {% elif zoom == "start" %}
-            {% if case.genome_build == 37 %}
-              - <a class="btn btn-outline-secondary btn-sm" href="http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&position=chr{{ variant.chromosome }}:{{ variant.position }}&dgv=pack&knownGene=pack&omimGene=pack" target="_blank">UCSC</a>
-            {% elif case.genome_build == 38 %}
-              - <a class="btn btn-outline-secondary btn-sm" href="http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&position=chr{{ variant.chromosome }}:{{ variant.position }}&dgv=pack&knownGene=pack&omimGene=pack" target="_blank">UCSC</a>
-            {% endif %}
-          {% elif zoom == "end" %}
-            {% if case.genome_build == 37 %}
-              - <a class="btn btn-outline-secondary btn-sm" href="http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&position=chr{{ variant.chromosome }}:{{ variant.end }}&dgv=pack&knownGene=pack&omimGene=pack" target="_blank">UCSC</a>
-            {% elif case.genome_build == 38 %}
-              - <a class="btn btn-outline-secondary btn-sm" href="http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&position=chr{{ variant.chromosome }}:{{ variant.end }}&dgv=pack&knownGene=pack&omimGene=pack" target="_blank">UCSC</a>
-            {% endif %}
+            - Complex rearrangement: check breakpoint alignments.
           {% else %}
             <button class="btn btn-outline-secondary btn-sm" name="align" value="bam" type=submit>IGV</button>
           {% endif %}
@@ -339,23 +323,11 @@
         {% endif %}
 
         {% if zoom == "length" and variant.chromosome == variant.end_chrom %}
-          {% if case.genome_build == 37 %}
-            - <a class="btn btn-outline-secondary btn-sm" href="http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&position=chr{{ variant.chromosome }}:{{ variant.position }}-{{ variant.end }}&dgv=pack&knownGene=pack&omimGene=pack" target="_blank">UCSC</a>
-          {% elif case.genome_build == 38 %}
-            - <a class="btn btn-outline-secondary btn-sm" href="http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&position=chr{{ variant.chromosome }}:{{ variant.position }}-{{ variant.end }}&dgv=pack&knownGene=pack&omimGene=pack" target="_blank">UCSC</a>
-          {% endif %}
+          - <a class="btn btn-outline-secondary btn-sm" href="http://genome.ucsc.edu/cgi-bin/hgTracks?db={{build}}&position=chr{{ variant.chromosome }}:{{ variant.position }}-{{ variant.end }}&dgv=pack&knownGene=pack&omimGene=pack" target="_blank">UCSC</a>
         {% elif zoom == "start" %}
-          {% if case.genome_build == 37 %}
-            - <a class="btn btn-outline-secondary btn-sm" href="http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&position=chr{{ variant.chromosome }}:{{ variant.position }}&dgv=pack&knownGene=pack&omimGene=pack" target="_blank">UCSC</a>
-          {% elif case.genome_build == 38 %}
-            - <a class="btn btn-outline-secondary btn-sm" href="http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&position=chr{{ variant.chromosome }}:{{ variant.position }}&dgv=pack&knownGene=pack&omimGene=pack" target="_blank">UCSC</a>
-          {% endif %}
+          - <a class="btn btn-outline-secondary btn-sm" href="http://genome.ucsc.edu/cgi-bin/hgTracks?db={{build}}&position=chr{{ variant.chromosome }}:{{ variant.position }}&dgv=pack&knownGene=pack&omimGene=pack" target="_blank">UCSC</a>
         {% elif zoom == "end" %}
-          {% if case.genome_build == 37 %}
-            - <a class="btn btn-outline-secondary btn-sm" href="http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&position=chr{{ variant.chromosome }}:{{ variant.end }}&dgv=pack&knownGene=pack&omimGene=pack" target="_blank">UCSC</a>
-          {% elif case.genome_build == 38 %}
-            - <a class="btn btn-outline-secondary btn-sm" href="http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg38&position=chr{{ variant.chromosome }}:{{ variant.end }}&dgv=pack&knownGene=pack&omimGene=pack" target="_blank">UCSC</a>
-          {% endif %}
+          - <a class="btn btn-outline-secondary btn-sm" href="http://genome.ucsc.edu/cgi-bin/hgTracks?db={{build}}&position=chr{{ variant.chromosome }}:{{ variant.end }}&dgv=pack&knownGene=pack&omimGene=pack" target="_blank">UCSC</a>
         {% endif %}
       </form>
 

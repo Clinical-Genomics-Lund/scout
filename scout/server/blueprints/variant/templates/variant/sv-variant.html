@@ -65,85 +65,9 @@
     </div> <!-- end of col -->
 
     <div class="col-md-6">
-      <div class="card mt-3">
-        <ul class="list-group">
-          <li class="list-group-item">
-            Position
-            <div class="float-right">
-              {{ variant.chromosome }}:{{ variant.position }} {{ "-" if variant.end_chrom == variant.chromosome else " / "+variant.end_chrom+":" }}{{ variant.end }}
-            </div>
-          </li>
-          <li class="list-group-item">
-            Copynumber profile
-            <div class="float-right">
-              {% for sample in variant.samples %}
-                <a class="btn btn-outline-dark" target="_blank" href="http://10.0.224.53:8111/{{ sample.display_name }}?region={{variant.chromosome}}:{{ variant.position - 2000 }}-{{ variant.end + 2000 }}&variant={{ variant._id }}&hg_type=38">Gens {{ sample.display_name }}</a>
-              {% endfor %}
-            </div>
-          </li>
-          <li class="list-group-item">
-            Breakpoint 1
-            <div class="float-right">
-              {{ variant.chromosome }}:{{ variant.position }}
-              {% if variant.chromosome == "MT" and case.mt_bams %}
-                - Alignment:
-                <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('alignviewers.igv', sample=case.sample_names, build=case.genome_build, bam=case.mt_bams, bai=case.mt_bais, contig=variant.chromosome, start=(variant.position - 500), stop=(variant.position + 500)) }}" target="_blank">IGV viewer</a>
-              {% elif case.bam_files %}
-                - Alignment:
-                <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('alignviewers.igv', bam=case.bam_files, bai=case.bai_files, sample=case.sample_names, build=case.genome_build, contig=variant.chromosome, start=(variant.position - 500), stop=(variant.position + 500)) }}" target="_blank">IGV</a>
-              {% else %}
-                - BAM file(s) missing
-              {% endif %}
-		- <a class="btn btn-outline-secondary btn-sm" href="http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&position=chr{{ variant.chromosome }}:{{ variant.position }}&dgv=pack&knownGene=pack&omimGene=pack" target="_blank">UCSC</a>
-            </div>
-          </li>
-          <li class="list-group-item">
-            Breakpoint 2
-            <div class="float-right">
-              {{ variant.end_chrom }}:{{ variant.end }}
-              {% if variant.end_chrom == "MT" and case.mt_bams %}
-                - Alignment:
-                <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('alignviewers.igv', sample=case.sample_names, build=case.genome_build, bam=case.mt_bams, bai=case.mt_bais, contig=variant.end_chrom, start=(variant.end - 500), stop=(variant.end + 500)) }}" target="_blank">IGV viewer</a>
-              {% elif case.bam_files %}
-                - Alignment:
-                <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('alignviewers.igv', bam=case.bam_files, bai=case.bai_files, sample=case.sample_names, build=case.genome_build, contig=variant.end_chrom, start=(variant.end - 500), stop=(variant.end + 500)) }}" target="_blank">IGV</a>
-              {% else %}
-                - BAM file(s) missing
-              {% endif %}
-                - <a class="btn btn-outline-secondary btn-sm" href="http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&position=chr{{ variant.end_chrom }}:{{ variant.end }}&dgv=pack&knownGene=pack&omimGene=pack" target="_blank">UCSC</a>
-            </div>
-          </li>
-  	      <li class="list-group-item">
-  	        Cytoband
-            <div class="float-right">
-              {% if variant.chromosome == variant.end_chrom and variant.cytoband_start == variant.cytoband_end %}
-                {{ variant.chromosome }}{{ variant.cytoband_start }}
-              {% elif variant.chromosome == variant.end_chrom %}
-                {{ variant.chromosome }}{{ variant.cytoband_start }}{{ variant.cytoband_end }}
-              {% else %}
-                {{ variant.chromosome }}{{ variant.cytoband_start }}-{{variant.end_chrom}}{{ variant.cytoband_end }}
-              {% endif %}
-            </div>
-  	      </li>
-  	      <li class="list-group-item">
-  	        Length
-            <div class="float-right">
-              {{ variant.length }}
-              {% if variant.chromosome == "MT" and case.mt_bams %}
-                - Alignment:
-                <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('alignviewers.igv', sample=case.sample_names, build=case.genome_build, bam=case.mt_bams, bai=case.mt_bais, contig=variant.chromosome, start=(variant.position - 500), stop=(variant.end + 500)) }}" target="_blank">IGV viewer</a>
-              {% elif case.bam_files and variant.chromosome == variant.end_chrom %}
-                - Alignment:
-                <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('alignviewers.igv', bam=case.bam_files, bai=case.bai_files, sample=case.sample_names, build=case.genome_build, contig=variant.chromosome, start=(variant.position - 500), stop=(variant.end + 500)) }}" target="_blank">IGV</a>
-              {% elif case.bam_files %}
-                - Complex rearrangement: check breakpoint alignments.
-              {% else %}
-                - BAM file(s) missing
-              {% endif %}
-              {% if variant.chromosome == variant.end_chrom %}
-              - <a class="btn btn-outline-secondary btn-sm" href="http://genome.ucsc.edu/cgi-bin/hgTracks?db=hg19&position=chr{{ variant.chromosome }}:{{ variant.position }}-{{ variant.end }}&dgv=pack&knownGene=pack&omimGene=pack" target="_blank">UCSC</a>
-              {% endif %}
-            </div>
+      {{ panel_summary() }}
+    </div> <!-- end of col -->
+  </div> <!-- end of row -->
 
   <div class="row">
     <div class="col-md-8">{{ gtcall_panel(variant) }}</div>
@@ -166,7 +90,7 @@
     <div class="col-4">{{ frequencies(variant) }}</div>
     {% if config['LOQUSDB_SETTINGS'] %}
       <div class="col-4">{{ observations_panel(variant, observations, case) }}</div>
-      <!--div class="col-4">{{ old_observations(variant) }}</div-->
+      <div class="col-4">{{ old_observations(variant) }}</div>
     {% endif %}
 
   </div>
@@ -266,17 +190,11 @@
           </div>
         </li>
         <li class="list-group-item">
-	  <div class="row d-flex justify-content-between">
-	  </div>
-        </li>
-        <li class="list-group-item">
-          <div class="row d-flex justify-content-between">
-            <div>Copy number profile</div>
-            <div>
-              {% for sample in variant.samples %}
-                <a class="btn btn-outline-dark" target="_blank" href="http://10.0.224.53:8111/{{ sample.display_name }}?region={{variant.chromosome}}:{{ variant.position - 2000 }}-{{ variant.end + 2000 }}&variant={{ variant._id }}&hg_type=38">Gens {{ sample.display_name }}</a>
-              {% endfor %}
-            </div>
+          Copynumber profile
+          <div class="float-right">
+            {% for sample in variant.samples %}
+              <a class="btn btn-outline-dark" target="_blank" href="http://10.0.224.53:8111/{{ sample.display_name }}?region={{variant.chromosome}}:{{ variant.position - 2000 }}-{{ variant.end + 2000 }}&variant={{ variant._id }}&hg_type=38">Gens {{ sample.display_name }}</a>
+            {% endfor %}
           </div>
         </li>
         <li class="list-group-item">
@@ -347,16 +265,16 @@
       <tbody>
         <tr>
           <td>
-	    {% if case.genome_build == 38 %}
+     {% if case.genome_build == 38 %}
               <a class="btn btn-outline-secondary form-control" href="http://www.ensembl.org/Homo_sapiens/Location/View?db=core;r={{ variant.chromosome }}:{{ variant.position }}-{{ variant.end }}" target="_blank">Ensembl</a>
-	    {% else %}
-	      <a class="btn btn-outline-secondary form-control" href="http://grch37.ensembl.org/Homo_sapiens/Location/View?db=core;r={{ variant.chromosome }}:{{ variant.position }}-{{ variant.end }}" target="_blank">Ensembl</a>
-	    {% endif %}
+     {% else %}
+       <a class="btn btn-outline-secondary form-control" href="http://grch37.ensembl.org/Homo_sapiens/Location/View?db=core;r={{ variant.chromosome }}:{{ variant.position }}-{{ variant.end }}" target="_blank">Ensembl</a>
+     {% endif %}
           </td>
-	  <td>
-	    <a class="btn btn-outline-secondary form-control" href="https://decipher.sanger.ac.uk/browser#q/{{ variant.chromosome }}:{{ variant.position }}-{{ variant.end }}%20/location/{{ variant.chromosome }}:{{ variant.position }}-{{ variant.end }}" target ="_blank">DECIPHER</a>
+   <td>
+     <a class="btn btn-outline-secondary form-control" href="https://decipher.sanger.ac.uk/browser#q/{{ variant.chromosome }}:{{ variant.position }}-{{ variant.end }}%20/location/{{ variant.chromosome }}:{{ variant.position }}-{{ variant.end }}" target ="_blank">DECIPHER {% if case.genome_build == 38 %} (GRCh37){% endif %}</a>
 
-	  </td>
+   </td>
         </tr>
       </tbody>
     </table>
